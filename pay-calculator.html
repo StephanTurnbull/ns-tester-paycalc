@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NS Testing Pay Calculator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f0f2f5;color:#222;min-height:100vh;padding:24px 16px}
+.wrap{max-width:860px;margin:0 auto}
+
+h1{font-size:1.4rem;color:#1a1a2e;margin-bottom:4px}
+.sub{font-size:0.82rem;color:#aaa;margin-bottom:28px}
+
+/* Upload */
+.upload-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.drop-zone{border:2px dashed #ccd;border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;background:white;transition:border-color 0.2s,background 0.2s;position:relative}
+.drop-zone:hover,.drop-zone.drag{border-color:#6c63ff;background:#f8f7ff}
+.drop-zone.loaded{border-color:#4caf50;border-style:solid;background:#f0fdf4}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{font-size:2rem;margin-bottom:8px}
+.dz-label{font-size:0.85rem;font-weight:600;color:#555}
+.dz-hint{font-size:0.75rem;color:#aaa;margin-top:4px}
+.dz-name{font-size:0.8rem;color:#4caf50;font-weight:600;margin-top:6px}
+.dz-summary{font-size:0.75rem;color:#888;margin-top:3px}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid #ddd;border-top-color:#6c63ff;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Schedule */
+.schedule-section{background:white;border-radius:14px;padding:20px 22px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:none}
+.schedule-section h2{font-size:0.85rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px}
+.weeks-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.week-block h3{font-size:0.8rem;color:#aaa;margin-bottom:8px}
+.day-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f5f5f5;font-size:0.83rem}
+.day-row:last-child{border-bottom:none}
+.day-name{width:30px;font-weight:700;color:#1a1a2e;font-size:0.82rem}
+.day-date{width:62px;color:#aaa;font-size:0.75rem}
+.day-hrs{width:36px;text-align:right;color:#666;font-family:monospace;font-size:0.8rem}
+.type-badge{padding:3px 9px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;border:none;flex-shrink:0;transition:opacity 0.15s}
+.type-badge:hover{opacity:0.8}
+.b-weekday{background:#d4edda;color:#2e7d32}
+.b-sunday{background:#fff3cd;color:#856404}
+.b-overtime{background:#f8d7da;color:#721c24}
+.b-ph_worked{background:#e2d9f3;color:#5b2c8d}
+.b-pholeave{background:#d1ecf1;color:#0c5460}
+.b-dayoff{background:#f0f0f0;color:#888}
+.b-ex{background:#dce4f7;color:#3040a0}
+.b-sick{background:#d0e4ff;color:#1a4bab}
+.b-rostered_ph{background:#d0f0ec;color:#1a6b64}
+.b-annual_leave{background:#fde8d0;color:#8a4000}
+.edit-hint{font-size:0.72rem;color:#ccc;margin-top:10px;text-align:right}
+
+/* Result */
+.result-section{display:none}
+.gross-card{background:#1a1a2e;border-radius:14px;padding:28px;text-align:center;margin-bottom:16px}
+.gross-label{font-size:0.75rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+.gross-value{font-size:3rem;font-weight:800;color:white;letter-spacing:-1px}
+.gross-note{font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:6px}
+
+.numbers-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px}
+.num-card{background:white;border-radius:12px;padding:16px 20px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+.num-label{font-size:0.72rem;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.num-value{font-size:1.6rem;font-weight:700;color:#1a1a2e}
+.num-note{font-size:0.7rem;color:#ccc;margin-top:2px}
+
+.breakdown-card{background:white;border-radius:14px;padding:20px 22px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+.breakdown-card h2{font-size:0.82rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px}
+.bd-row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:0.87rem}
+.bd-row:last-child{border-bottom:none}
+.bd-desc{color:#444}
+.bd-meta{font-size:0.73rem;color:#bbb;margin-left:6px}
+.bd-val{font-family:'Courier New',monospace;font-size:0.85rem;color:#222;font-weight:600}
+.bd-val.neg{color:#c62828}
+.bd-section{font-size:0.72rem;font-weight:700;color:#ccc;text-transform:uppercase;letter-spacing:0.5px;padding:10px 0 4px;border-bottom:none}
+.bd-total{font-weight:700;font-size:0.95rem;border-top:2px solid #eee;padding-top:10px;margin-top:4px}
+
+.footnote{font-size:0.72rem;color:#ccc;margin-top:12px;line-height:1.6}
+
+/* Annual estimate */
+.annual-card{background:#f5f3ff;border:1px solid #ddd8ff;border-radius:14px;padding:16px 22px;margin-bottom:16px}
+.annual-label{font-size:0.78rem;font-weight:700;color:#5b4fcf;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.annual-note{font-size:0.72rem;color:#aaa;text-transform:none;letter-spacing:0;font-weight:400;margin-left:6px}
+.annual-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.annual-item-label{font-size:0.7rem;color:#aaa;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px}
+.annual-item-val{font-size:1.25rem;font-weight:700;color:#1a1a2e;font-family:'Courier New',monospace}
+
+/* Pay grade */
+.grade-card{background:white;border-radius:14px;padding:16px 22px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.grade-card label{font-size:0.78rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap}
+.grade-card select{padding:9px 12px;border:1px solid #dde;border-radius:8px;font-size:0.9rem;color:#222;background:white;cursor:pointer;flex:1;min-width:220px}
+.grade-card select:focus{outline:none;border-color:#6c63ff}
+.grade-pill{font-size:0.78rem;background:#f0f2f5;border-radius:20px;padding:4px 12px;color:#666;white-space:nowrap}
+.grade-pill strong{color:#1a1a2e}
+
+.error-msg{background:#fff5f5;border:1px solid #ffcdd2;color:#c62828;padding:10px 14px;border-radius:8px;font-size:0.82rem;margin-bottom:12px;display:none}
+
+/* Pre-tax deductions */
+.ded-section{background:white;border-radius:14px;padding:16px 22px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.ded-label{display:block;font-size:0.8rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.ded-row{display:flex;align-items:center;gap:10px}
+.ded-prefix{font-size:1.1rem;color:#aaa;font-weight:600}
+.ded-section input{width:140px;padding:9px 12px;border:1px solid #dde;border-radius:8px;font-size:1rem;color:#222}
+.ded-section input:focus{outline:none;border-color:#6c63ff}
+.ded-hint{font-size:0.75rem;color:#bbb}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>NS Testing Pay Calculator</h1>
+  <p class="sub">Upload both weekly timesheets — get your estimated pay</p>
+
+  <!-- Pay grade selector -->
+  <div class="grade-card">
+    <label for="gradeSelect">Pay Grade</label>
+    <select id="gradeSelect" onchange="updateGrade()">
+      <option value="">— Select your grade —</option>
+    </select>
+    <div class="grade-pill" id="gradePill" style="display:none">
+      Base <strong id="gradeRateDisplay"></strong> &nbsp;·&nbsp; <span id="gradePeriodDisplay"></span>
+    </div>
+  </div>
+
+  <div class="upload-row">
+    <div class="drop-zone" id="dz1" ondragover="onDrag(event,1)" ondragleave="offDrag(1)" ondrop="onDrop(event,1)">
+      <input type="file" accept=".pdf" onchange="loadFile(1,this.files[0])">
+      <div class="dz-icon" id="icon1">📄</div>
+      <div class="dz-label">Week 1 Timesheet</div>
+      <div class="dz-hint">Drop PDF or click to browse</div>
+      <div class="dz-name" id="name1" style="display:none"></div>
+      <div class="dz-summary" id="sum1"></div>
+    </div>
+    <div class="drop-zone" id="dz2" ondragover="onDrag(event,2)" ondragleave="offDrag(2)" ondrop="onDrop(event,2)">
+      <input type="file" accept=".pdf" onchange="loadFile(2,this.files[0])">
+      <div class="dz-icon" id="icon2">📄</div>
+      <div class="dz-label">Week 2 Timesheet</div>
+      <div class="dz-hint">Drop PDF or click to browse</div>
+      <div class="dz-name" id="name2" style="display:none"></div>
+      <div class="dz-summary" id="sum2"></div>
+    </div>
+  </div>
+
+  <div class="error-msg" id="errMsg"></div>
+
+  <!-- Editable schedule -->
+  <div class="schedule-section" id="schedSec">
+    <h2>Detected Schedule — click any badge to change type</h2>
+    <div class="weeks-grid">
+      <div class="week-block"><h3 id="wk1label">Week 1</h3><div id="wk1days"></div></div>
+      <div class="week-block"><h3 id="wk2label">Week 2</h3><div id="wk2days"></div></div>
+    </div>
+    <div class="edit-hint">Tap a badge to cycle type → Weekday (130%) · Sunday (200%) · Project (200%) · Overtime (200%) · PH Worked (250%) · Sick/Bonus/WLBP/PH · Non-Roster PH Leave · Annual Leave · Day Off</div>
+  </div>
+
+  <!-- Pre-tax deductions -->
+  <div class="ded-section" id="dedSec" style="display:none">
+    <label class="ded-label" for="preTaxInput">Pre-Tax Deductions (optional)</label>
+    <div class="ded-row">
+      <span class="ded-prefix">$</span>
+      <input type="number" id="preTaxInput" placeholder="0.00" min="0" step="0.01" oninput="runCalc()">
+      <span class="ded-hint">salary sacrifice, car lease, purchased leave, etc.</span>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-section" id="resultSec">
+    <div class="gross-card">
+      <div class="gross-label">Estimated Gross Pay</div>
+      <div class="gross-value" id="grossVal">—</div>
+      <div class="gross-note">Fortnightly, before tax &amp; deductions</div>
+    </div>
+    <div class="numbers-row">
+      <div class="num-card">
+        <div class="num-label">Est. Tax</div>
+        <div class="num-value" id="taxVal">—</div>
+        <div class="num-note">PAYG incl. Medicare (approx.)</div>
+      </div>
+      <div class="num-card">
+        <div class="num-label">Est. Net</div>
+        <div class="num-value" id="netVal">—</div>
+        <div class="num-note">After tax, before post-tax deductions</div>
+      </div>
+      <div class="num-card">
+        <div class="num-label">Est. Super</div>
+        <div class="num-value" id="superVal">—</div>
+        <div class="num-note">12% SG on gross (2025–26)</div>
+      </div>
+    </div>
+    <div class="annual-card">
+      <div class="annual-label">Annual Estimate <span class="annual-note">if every fortnight matched this one (× 26)</span></div>
+      <div class="annual-cols">
+        <div><div class="annual-item-label">Gross</div><div class="annual-item-val" id="annGross">—</div></div>
+        <div><div class="annual-item-label">Tax</div><div class="annual-item-val" id="annTax">—</div></div>
+        <div><div class="annual-item-label">Net</div><div class="annual-item-val" id="annNet">—</div></div>
+        <div><div class="annual-item-label">Super</div><div class="annual-item-val" id="annSuper">—</div></div>
+      </div>
+    </div>
+
+    <div class="breakdown-card">
+      <h2>Breakdown</h2>
+      <div id="bdRows"></div>
+      <p class="footnote">* Tax estimated using ATO 2025–26 resident individual rates (Stage 3) + 2% Medicare levy, annualised from taxable income. All figures indicative only.</p>
+    </div>
+  </div>
+
+</div>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ── Pay Grade Data ─────────────────────────────────────────
+// Periods: Jul-23, Jan-24, Jul-24, Jan-25, Jul-25, Jan-26, Jul-26, Jan-27
+// Note: 1% pay raise applied from Jan-26 (index 5) onwards to base and testing allowance
+const PERIOD_LABELS  = ['Jul-23','Jan-24','Jul-24','Jan-25','Jul-25','Jan-26','Jul-26','Jan-27'];
+const PERIOD_STARTS  = [
+  new Date(2023,6,1), new Date(2024,0,1), new Date(2024,6,1), new Date(2025,0,1),
+  new Date(2025,6,1), new Date(2026,0,1), new Date(2026,6,1), new Date(2027,0,1),
+];
+const PAY_GRADES = [
+  { code:'VB8', desc:'Trainee Tester',          rates:[58.6868,60.1540,61.3571,62.5842,63.6794,65.4417,66.5870,67.7522] },
+  { code:'VZI', desc:'Tester Level 1',           rates:[63.9975,65.5974,66.9093,68.2475,69.4418,71.3636,72.6124,73.8831] },
+  { code:'VZN', desc:'Tester Level 2',           rates:[72.3452,74.1538,75.6369,77.1496,78.4997,80.6721,82.0839,83.5203] },
+  { code:'VZO', desc:'Senior Tester Level 1',    rates:[75.1277,77.0059,78.5460,80.1169,81.5189,83.7750,85.2410,86.7326] },
+  { code:'VZJ', desc:'Senior Tester Level 2',    rates:[77.9103,79.8581,81.4553,83.0844,84.5384,86.8780,88.3983,89.9453] },
+  { code:'VZK', desc:'Technical Officer Level 1',rates:[89.0400,91.2660,93.0913,94.9531,96.6148,99.2887,101.0262,102.7942] },
+  { code:'VZL', desc:'Technical Officer Level 2',rates:[94.6056,96.9707,98.9101,100.8883,102.6538,105.4947,107.3409,109.2194] },
+];
+// E Grade Electrical — Infra (A440), same period columns (1% raise applied from Jan-26)
+const EGRADE_RATES        = [1.7695,1.8137,1.8500,1.8870,1.9200,1.9731,2.0077,2.0429];
+// Testing Allowance (A078) — applies to every worked hour (1% raise from Jan-26)
+const TESTING_ALLOW_RATES = [5.9297,6.0779,6.1995,6.3235,6.4342,6.6123,6.7280,6.8458];
+// Senior Testing Allowance (A077) — VZO and VZJ only, every worked hour (1% raise applied from Jan-26)
+const SENIOR_TESTING_ALLOW_RATES = [7.6460,7.8372,7.9939,8.1538,8.2965,8.5261,8.6753,8.8271];
+const SENIOR_GRADES = ['VZO','VZJ'];
+// OT Penalty is proportional to base (ratio derived from payslip)
+const OT_PEN_MULT = 86.6822 / 77.9758;   // ≈ 1.1117
+
+function currentPeriodIdx() {
+  const now = new Date();
+  let idx = 0;
+  for (let i = 0; i < PERIOD_STARTS.length; i++) {
+    if (now >= PERIOD_STARTS[i]) idx = i;
+  }
+  return idx;
+}
+
+function populateGradeSelect() {
+  const sel = document.getElementById('gradeSelect');
+  const pi  = currentPeriodIdx();
+  PAY_GRADES.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.code;
+    opt.textContent = `${g.code} — ${g.desc}  ($${(g.rates[pi] + TESTING_ALLOW_RATES[pi]).toFixed(2)}/hr)`;
+    sel.appendChild(opt);
+  });
+}
+
+function updateGrade() {
+  const code  = document.getElementById('gradeSelect').value;
+  const pill  = document.getElementById('gradePill');
+  if (!code) { pill.style.display = 'none'; return; }
+
+  const grade = PAY_GRADES.find(g => g.code === code);
+  const pi    = currentPeriodIdx();
+  const base  = grade.rates[pi];
+
+  // All rates derived from combined (base + testing allowance) — matches payslip
+  R.base           = base;
+  R.testAllow      = TESTING_ALLOW_RATES[pi];
+  R.seniorTestAllow = SENIOR_GRADES.includes(code) ? SENIOR_TESTING_ALLOW_RATES[pi] : 0;
+  R.eGrade         = EGRADE_RATES[pi];
+  const combined = base + R.testAllow;
+  R.night   = combined * 0.30;         // NS weekday penalty = 30% of combined
+  R.wePen   = combined;                // weekend penalty = 100% of combined rate
+  R.otPen   = combined * OT_PEN_MULT; // OT penalty from combined
+  R.ot2x    = combined * 2;
+  R.ot25x   = combined * 2.5;
+  // EX floor = VZI OT penalty rate for this period (fixed floor, higher grades earn their own rate)
+  const vziCombined = PAY_GRADES.find(g => g.code === 'VZI').rates[pi] + TESTING_ALLOW_RATES[pi];
+  R.exFloor = vziCombined * OT_PEN_MULT;
+
+  // Update pill
+  document.getElementById('gradeRateDisplay').textContent = `$${(base + R.testAllow).toFixed(2)}/hr`;
+  document.getElementById('gradePeriodDisplay').textContent = PERIOD_LABELS[pi];
+  pill.style.display = 'inline-block';
+
+  if (state.weeks[0] && state.weeks[1]) runCalc();
+}
+
+// ── Constants ──────────────────────────────────────────────
+const R = {
+  base:             0,
+  night:            0,
+  wePen:            0,
+  otPen:            0,
+  ot2x:             0,
+  ot25x:            0,
+  eGrade:           0,
+  testAllow:        0,
+  seniorTestAllow:  0,
+  exFloor:          0,
+  phHrs:            7.6,  // fixed — not grade-dependent
+};
+
+const TYPE_ORDER = ['weekday','sunday','ex_project','overtime','annual_leave','dayoff','sick','pholeave','ph_worked'];
+const TYPE_LABEL = {
+  weekday:     'Weekday (130%)',
+  sunday:      'Sunday (200%)',
+  ex_project:  'Project (200%)',
+  overtime:    'Overtime (200%)',
+  ph_worked:   'PH Worked (250%)',
+  sick:        'Sick/Bonus/WLBP/PH',
+  rostered_ph: 'Sick/Bonus/WLBP/PH',  // legacy — same rate
+  pholeave:    'Non-Roster PH Leave',
+  annual_leave:'Annual Leave',
+  dayoff:      'Day Off',
+};
+const TYPE_BG = {
+  weekday:     'b-weekday',
+  sunday:      'b-sunday',
+  ex_project:  'b-ex',
+  overtime:    'b-overtime',
+  ph_worked:   'b-ph_worked',
+  sick:        'b-sick',
+  rostered_ph: 'b-sick',  // legacy — same style
+  pholeave:    'b-pholeave',
+  annual_leave:'b-annual_leave',
+  dayoff:      'b-dayoff',
+};
+
+// ── State ──────────────────────────────────────────────────
+const state = { weeks: [null, null] };
+
+// ── Drag/drop helpers ──────────────────────────────────────
+function onDrag(e, n) { e.preventDefault(); document.getElementById('dz'+n).classList.add('drag'); }
+function offDrag(n)   { document.getElementById('dz'+n).classList.remove('drag'); }
+function onDrop(e, n) { e.preventDefault(); offDrag(n); const f = e.dataTransfer.files[0]; if (f) loadFile(n, f); }
+
+// ── File load ──────────────────────────────────────────────
+async function loadFile(n, file) {
+  if (!file || file.type !== 'application/pdf') return showErr('Please upload a PDF file.');
+  hideErr();
+  const dz = document.getElementById('dz'+n);
+  document.getElementById('icon'+n).innerHTML = '<div class="spinner"></div>';
+  document.getElementById('name'+n).style.display = 'none';
+  document.getElementById('sum'+n).textContent = 'Reading…';
+  dz.classList.remove('loaded');
+
+  try {
+    const text = await extractPDFText(file);
+    const parsed = parseTimesheet(text);
+    state.weeks[n-1] = parsed;
+
+    dz.classList.add('loaded');
+    document.getElementById('icon'+n).textContent = '✅';
+    const nameEl = document.getElementById('name'+n);
+    nameEl.textContent = file.name;
+    nameEl.style.display = 'block';
+    const worked = parsed.days.filter(d => d.type !== 'dayoff' && d.type !== 'pholeave').length;
+    const ph = parsed.days.filter(d => d.type === 'pholeave').length;
+    document.getElementById('sum'+n).textContent =
+      `w/e ${parsed.weekEnd} · ${worked} shifts${ph ? ` · ${ph} PH leave` : ''}`;
+
+    renderSchedule();
+    if (state.weeks[0] && state.weeks[1]) runCalc();
+  } catch(err) {
+    document.getElementById('icon'+n).textContent = '❌';
+    document.getElementById('sum'+n).textContent = 'Parse failed';
+    showErr('Could not read PDF. Make sure it is a Metro Trains weekly timesheet.');
+    console.error(err);
+  }
+}
+
+// ── PDF text extraction ────────────────────────────────────
+async function extractPDFText(file) {
+  const ab = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+  let text = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(item => item.str).join(' ') + '\n';
+  }
+  return text;
+}
+
+// ── Timesheet parser ───────────────────────────────────────
+function parseTimesheet(text) {
+  // Week ending date — find SAT date (format: 20-Mar-26 or 20/03/2026)
+  const MONTHS = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  let weekEndDate = null;
+  let weekEnd = 'Unknown';
+
+  const satText = text.match(/SAT(?:URDAY)?\s+(\d{1,2}[-\/][A-Za-z]{3}[-\/]\d{2,4})/i) ||
+                  text.match(/SAT(?:URDAY)?\s+(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/i);
+  if (satText) {
+    const raw = satText[1];
+    const alphaMatch = raw.match(/^(\d{1,2})[-\/]([A-Za-z]{3})[-\/](\d{2,4})$/);
+    const numMatch   = raw.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})$/);
+    if (alphaMatch) {
+      const d = parseInt(alphaMatch[1]);
+      const m = MONTHS[alphaMatch[2].toLowerCase()];
+      const y = parseInt(alphaMatch[3]);
+      weekEndDate = new Date(y < 100 ? 2000+y : y, m, d);
+    } else if (numMatch) {
+      const d = parseInt(numMatch[1]), m = parseInt(numMatch[2]), y = parseInt(numMatch[3]);
+      weekEndDate = new Date(y < 100 ? 2000+y : y, m-1, d);
+    }
+    if (weekEndDate && isNaN(weekEndDate.getTime())) {
+      weekEndDate = null;
+    } else if (weekEndDate) {
+      // Night shifts start the evening before — SAT date in PDF is Friday night.
+      // Add one day to get the actual week-ending Saturday.
+      weekEndDate.setDate(weekEndDate.getDate() + 1);
+      const dd = weekEndDate.getDate(), mm = weekEndDate.getMonth()+1, yy = weekEndDate.getFullYear();
+      weekEnd = `${String(dd).padStart(2,'0')}/${String(mm).padStart(2,'0')}/${yy}`;
+    }
+  }
+
+  // Count shift types in the text
+  const rosterCount   = (text.match(/Rostered\s+time/gi) || []).length;
+  const overtimeCount = (text.match(/\bOvertime\b/g) || []).length;
+  const pholeaveCount    = (text.match(/PHOLEAVE/g) || []).length;
+  // Count work orders starting with EX — these are project shifts
+  const exProjectCount   = (text.match(/\bEX[A-Z0-9]+/g) || []).length;
+  // Annual leave work order code
+  const annualLeaveCount = (text.match(/ANNUALEV/g) || []).length;
+
+  const days = buildDays(weekEndDate, weekEnd, rosterCount, overtimeCount, pholeaveCount, exProjectCount, annualLeaveCount);
+  return { weekEnd: weekEnd, days };
+}
+
+function buildDays(weekEndDate, weekEndStr, rosterCount, overtimeCount, pholeaveCount, exProjectCount=0, annualLeaveCount=0) {
+  const NAMES = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const days = NAMES.map((name, i) => {
+    let dateStr = '';
+    if (weekEndDate) {
+      const d = new Date(weekEndDate);
+      d.setDate(d.getDate() - (6 - i));
+      dateStr = d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+    }
+    return { day: name, dateStr, hours: 0, type: 'dayoff' };
+  });
+
+  // Assign PHOLEAVE from end of week (SAT first, then FRI, etc.)
+  for (let i = 6; i >= 0 && (6-i) < pholeaveCount; i--) {
+    days[i].type = 'pholeave';
+    days[i].hours = R.phHrs;
+  }
+
+  // Fill worked shifts from SUN outward (skip already-assigned PHOLEAVE)
+  const totalWorked = rosterCount + overtimeCount;
+  let assigned = 0;
+  let exAssigned = 0;
+  let alAssigned = 0;
+
+  for (let i = 0; i < 7 && assigned < totalWorked; i++) {
+    if (days[i].type === 'pholeave') continue;
+    const isLast = assigned === totalWorked - 1;
+    if (i === 0) {
+      days[i].type = 'sunday';
+    } else if (isLast && overtimeCount > 0) {
+      days[i].type = 'overtime';
+    } else if (exAssigned < exProjectCount) {
+      days[i].type = 'ex_project';
+      exAssigned++;
+    } else if (alAssigned < annualLeaveCount) {
+      days[i].type = 'annual_leave';
+      alAssigned++;
+    } else {
+      days[i].type = 'weekday';
+    }
+    days[i].hours = 9.5;
+    assigned++;
+  }
+
+  return days;
+}
+
+// ── Render editable schedule ───────────────────────────────
+function renderSchedule() {
+  document.getElementById('schedSec').style.display = 'block';
+  [0,1].forEach(wi => {
+    const w = state.weeks[wi];
+    if (!w) return;
+    document.getElementById('wk'+(wi+1)+'label').textContent = 'Week '+(wi+1)+' — w/e '+w.weekEnd;
+    const container = document.getElementById('wk'+(wi+1)+'days');
+    container.innerHTML = '';
+    w.days.forEach((day, di) => {
+      const row = document.createElement('div');
+      row.className = 'day-row';
+      row.innerHTML = `
+        <span class="day-name">${day.day}</span>
+        <span class="day-date">${day.dateStr}</span>
+        <span class="day-hrs">${day.hours > 0 ? day.hours+'h' : '—'}</span>
+        <button class="type-badge ${TYPE_BG[day.type]}" onclick="cycleType(${wi},${di})">${TYPE_LABEL[day.type]}</button>
+      `;
+      container.appendChild(row);
+    });
+  });
+}
+
+function cycleType(wi, di) {
+  const day = state.weeks[wi].days[di];
+  const idx = TYPE_ORDER.indexOf(day.type);
+  day.type = TYPE_ORDER[(idx + 1) % TYPE_ORDER.length];
+  // Update hours to sensible defaults
+  if (day.type === 'pholeave') day.hours = R.phHrs;
+  else if (day.type === 'dayoff') day.hours = 0;
+  else day.hours = 9.5;
+  renderSchedule();
+  runCalc();
+}
+
+// ── Pay calculation ────────────────────────────────────────
+// Pay rules:
+//   Weekday    1.3x  = base + night allowance  (per hour)
+//   Sunday     2.0x  = base × 2                (per hour)
+//   EX Project 2.0x  = base × 2 + $90 flat/shift allowance
+//   Overtime         = OT Penalty + O/T 2.0 rates
+//   PH Worked  2.5x  = base × 2.5              (per hour, called-in non-rostered)
+//   Sick Leave 1.0x  = base only               (9.5h standard)
+//   Rostered PH 1.0x = base only               (9.5h standard — incl. bonus days)
+//   PHOLEAVE         = base × 7.6h             (non-rostered PH, not worked)
+//   Day Off          = $0
+// E Grade allowance applies to all physically worked shifts (Weekday/Sunday/EX/OT/PH Worked)
+function runCalc() {
+  const allDays = [...state.weeks[0].days, ...state.weeks[1].days];
+
+  let wdHrs=0, sunHrs=0, exHrs=0, exShifts=0;
+  let otHrs=0, phWkdHrs=0;
+  let sickHrs=0, phLeaveHrs=0;
+  let alWdHrs=0, alSunHrs=0;
+  let nightHrs=0, eGradeHrs=0;
+
+  allDays.forEach(d => {
+    const h = d.hours;
+    switch (d.type) {
+      case 'weekday':
+        wdHrs     += h; nightHrs += h; eGradeHrs += h; break;
+      case 'sunday':
+        sunHrs    += h; eGradeHrs += h; break;
+      case 'ex_project':
+        exHrs     += h; exShifts++;    eGradeHrs += h; break;
+      case 'overtime':
+        otHrs     += h; eGradeHrs += h; break;
+      case 'ph_worked':
+        phWkdHrs  += h; eGradeHrs += h; break;
+      case 'sick':
+      case 'rostered_ph':
+        sickHrs   += h; break;
+      case 'pholeave':
+        phLeaveHrs  += h; break;
+      case 'annual_leave':
+        if (d.day === 'SUN') alSunHrs += h; else alWdHrs += h;
+        eGradeHrs += h; break;
+    }
+  });
+
+  // Amounts — testing allowance folded into worked-shift rates (matches payslip display)
+  // Leave/sick use bare base only (testing not paid on leave)
+  const combined       = R.base + R.testAllow;            // combined base for worked shifts
+  const wdNormalAmt    = wdHrs        * combined;         // base + testing
+  const wdNightAmt     = nightHrs     * R.night;          // night allowance
+  const sunNormalAmt   = sunHrs       * combined;         // base + testing
+  const sunWePenAmt    = sunHrs       * R.wePen;          // weekend penalty (100% of bare base)
+  const exRate         = Math.max(combined, R.exFloor);
+  const exNormalAmt    = exHrs        * exRate;   // normal rate component
+  const exPenAmt       = exHrs        * exRate;   // OT penalty component (same rate again)
+  const exAllow        = exHrs        * 10.50;            // Site $5.50 + JumpUp $5.00 per hour
+  const ot2xAmt        = otHrs        * R.ot2x;
+  const phWkdAmt       = phWkdHrs     * R.ot25x;
+  const sickAmt        = sickHrs      * combined;         // 1x combined rate
+  const phLeaveAmt     = phLeaveHrs   * combined;         // 1x combined rate × 7.6h
+  const alWdNormalAmt  = alWdHrs      * combined;              // AL weekday — base component
+  const alWdPenAmt     = alWdHrs      * R.night;               // AL weekday — 30% penalty
+  const alSunNormalAmt = alSunHrs     * combined;              // AL sunday — base component
+  const alSunPenAmt    = alSunHrs     * R.wePen;               // AL sunday — 100% penalty
+  const alLoadingAmt   = (alWdHrs + alSunHrs) * combined * 0.20; // Annual Leave Loading — 20% of combined (base + testing)
+  const eGradeAmt        = eGradeHrs  * R.eGrade;
+  const seniorTestAmt    = eGradeHrs  * R.seniorTestAllow;
+
+  const gross = wdNormalAmt + wdNightAmt +
+                sunNormalAmt + sunWePenAmt +
+                exNormalAmt + exPenAmt + exAllow +
+                ot2xAmt +
+                phWkdAmt + sickAmt + phLeaveAmt +
+                alWdNormalAmt + alWdPenAmt + alSunNormalAmt + alSunPenAmt + alLoadingAmt +
+                eGradeAmt + seniorTestAmt;
+
+  const preTaxDed = parseFloat(document.getElementById('preTaxInput').value) || 0;
+  const taxable = gross - preTaxDed;
+  const tax = estimateTax(taxable);
+  const net = taxable - tax;
+  const superBase = gross - ot2xAmt - phWkdAmt;
+  const superAmt  = superBase * 0.12;
+
+  document.getElementById('dedSec').style.display = 'block';
+
+  // ── Render ───────────────────────────────────────────────
+  document.getElementById('resultSec').style.display = 'block';
+  document.getElementById('grossVal').textContent = fmt(gross);
+  document.getElementById('taxVal').textContent = fmt(tax);
+  document.getElementById('netVal').textContent = fmt(net);
+  document.getElementById('superVal').textContent = fmt(superAmt);
+
+  document.getElementById('annGross').textContent = fmt(gross * 26);
+  document.getElementById('annTax').textContent   = fmt(tax   * 26);
+  document.getElementById('annNet').textContent   = fmt(net   * 26);
+  document.getElementById('annSuper').textContent = fmt(superAmt * 26);
+
+  const rows = [];
+  const sec = t => rows.push(`<div class="bd-row"><span class="bd-desc bd-section">${t}</span></div>`);
+  const row = (desc, meta, val, neg) => rows.push(`
+    <div class="bd-row">
+      <span class="bd-desc">${desc}<span class="bd-meta">${meta||''}</span></span>
+      <span class="bd-val${neg?' neg':''}">${neg?'−':''}${fmt(Math.abs(val))}</span>
+    </div>`);
+  const tot = (desc, val) => rows.push(`
+    <div class="bd-row bd-total">
+      <span class="bd-desc">${desc}</span>
+      <span class="bd-val">${fmt(val)}</span>
+    </div>`);
+
+  sec('Pay Elements');
+  const normalHrs = wdHrs + sunHrs;
+  if (normalHrs > 0)    row('Normal',                           `${h(normalHrs)} × ${cur(combined)}/hr`,          wdNormalAmt + sunNormalAmt);
+  if (wdHrs > 0)        row('Weekday NS Penalty 30%',           `${h(wdHrs)} × ${cur(R.night)}/hr`,               wdNightAmt);
+  if (sunHrs > 0)       row('Weekend NS Penalty 100%',          `${h(sunHrs)} × ${cur(R.wePen)}/hr`,              sunWePenAmt);
+  if (exHrs > 0)        row('Project — Normal',                 `${h(exHrs)} × ${cur(exRate)}/hr`, exNormalAmt);
+  if (exHrs > 0)        row('Project — Penalty',               `${h(exHrs)} × ${cur(exRate)}/hr`, exPenAmt);
+  if (otHrs > 0)        row('Overtime Shift (200%)',             `${h(otHrs)} × ${cur(R.ot2x)}/hr`,               ot2xAmt);
+  if (phWkdHrs > 0)     row('PH Overtime Shift (250%)',         `${h(phWkdHrs)} × ${cur(R.ot25x)}/hr`,           phWkdAmt);
+  if (sickHrs > 0)      row('Sick/Bonus/WLBP/PH (100%)',         `${h(sickHrs)} × ${cur(combined)}/hr`,            sickAmt);
+  if (phLeaveHrs > 0)   row('Non-Roster PH Leave',              `${h(phLeaveHrs)} × ${cur(combined)}/hr`,         phLeaveAmt);
+  if (alWdHrs > 0)      row('Annual Leave — Weekday',           `${h(alWdHrs)} × ${cur(combined)}/hr`,            alWdNormalAmt);
+  if (alWdHrs > 0)      row('Annual Leave — Weekday Penalty 30%', `${h(alWdHrs)} × ${cur(R.night)}/hr`,          alWdPenAmt);
+  if (alSunHrs > 0)     row('Annual Leave — Sunday',            `${h(alSunHrs)} × ${cur(combined)}/hr`,           alSunNormalAmt);
+  if (alSunHrs > 0)     row('Annual Leave — Sunday Penalty 100%', `${h(alSunHrs)} × ${cur(R.wePen)}/hr`,         alSunPenAmt);
+
+  sec('Allowances');
+  if (eGradeHrs > 0)      row('E Grade Electrical — Infra (A440)',  `${h(eGradeHrs)} × ${cur(R.eGrade)}/hr`,           eGradeAmt);
+  if (seniorTestAmt > 0)  row('Senior Testing Allowance (A077)',    `${h(eGradeHrs)} × ${cur(R.seniorTestAllow)}/hr`,  seniorTestAmt);
+  if (alLoadingAmt > 0) row('Annual Leave Loading',             `${h(alWdHrs+alSunHrs)} × ${cur(combined * 0.20)}/hr`, alLoadingAmt);
+  if (exHrs > 0)      row('Site & JumpUp Allowance',             `${h(exHrs)} × $10.50/hr`, exAllow);
+
+  tot('Gross', gross);
+
+  if (preTaxDed > 0) {
+    sec('Pre-Tax Deductions');
+    row('Pre-Tax Deductions', '', preTaxDed, true);
+    rows.push(`<div class="bd-row"><span class="bd-desc" style="color:#888">Taxable Income</span><span class="bd-val">${fmt(taxable)}</span></div>`);
+  }
+
+  sec('Tax (Estimate)');
+  row('PAYG incl. Medicare', 'ATO 2025–26 rates (Stage 3)', tax, true);
+
+  rows.push(`<div class="bd-row bd-total"><span class="bd-desc">Estimated Net Pay</span><span class="bd-val">${fmt(net)}</span></div>`);
+
+  document.getElementById('bdRows').innerHTML = rows.join('');
+}
+
+function estimateTax(fortnightlyTaxable) {
+  const a = fortnightlyTaxable * 26;
+  let t = 0;
+  if      (a <= 18200)  t = 0;
+  else if (a <= 45000)  t = (a-18200)*0.19;
+  else if (a <= 135000) t = 5092  + (a-45000)*0.30;
+  else if (a <= 190000) t = 32092 + (a-135000)*0.37;
+  else                  t = 52442 + (a-190000)*0.45;
+  t += a * 0.02; // Medicare
+  return t / 26;
+}
+
+// ── Formatters ─────────────────────────────────────────────
+const fmt = n => '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const cur = n => '$' + n.toFixed(2);
+const h   = n => n % 1 === 0 ? n+'h' : n.toFixed(1)+'h';
+
+// ── Error helpers ──────────────────────────────────────────
+function showErr(msg) {
+  const el = document.getElementById('errMsg');
+  el.textContent = msg; el.style.display = 'block';
+}
+function hideErr() { document.getElementById('errMsg').style.display = 'none'; }
+
+// ── Init ───────────────────────────────────────────────────
+populateGradeSelect();
+</script>
+</body>
+</html>
