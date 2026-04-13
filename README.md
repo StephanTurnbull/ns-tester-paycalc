@@ -30,3 +30,17 @@ A single-file HTML pay calculator for Metro Trains NS Testing staff. Upload your
 - All figures are estimates only — for reference purposes, not payroll advice
 - Tax is annualised from fortnightly taxable income using ATO 2025–26 rates
 - Overtime and PH Worked shifts are excluded from the super base per SGC rules
+- Annual estimate assumes 26 identical fortnights — useful as a ballpark only
+
+## Known Limitations / To Do
+
+**Calculations to verify**
+- [ ] A082 Electrical Works Allowance — rate data exists but not yet implemented; confirm if applicable
+- [ ] Confirm whether Annual Leave Loading should be included or excluded from the super base
+- [ ] Confirm whether Testing Allowance (A078) pays out on sick/bonus leave days (currently included)
+- [ ] OT penalty multiplier (`OT_PEN_MULT`) is derived from a single payslip ratio — may drift for grades other than VZI
+
+**Usability**
+- [ ] Per-shift hour editing — all shifts are locked to 9.5h; no way to handle partial shifts without editing the source
+- [ ] PDF parser is heuristic — counts shift types but doesn't know which day each falls on, so unusual rosters (e.g. annual leave on a Sunday) may need manual badge correction; consider adding a visible warning when shifts are auto-assigned
+- [ ] Print / export — no way to save a result for your own records without screenshotting
