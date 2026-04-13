@@ -37,7 +37,6 @@ A single-file HTML pay calculator for Metro Trains NS Testing staff. Upload your
 **Calculations to verify**
 - [ ] Confirm whether Annual Leave Loading should be included or excluded from the super base
 - [ ] Confirm whether Testing Allowance (A078) pays out on sick/bonus leave days (currently included)
-- [ ] OT penalty multiplier (`OT_PEN_MULT`) is derived from a single payslip ratio — may drift for grades other than VZI
 
 **Usability**
 - [ ] Per-shift hour editing — all shifts are locked to 9.5h; no way to handle partial shifts without editing the source
