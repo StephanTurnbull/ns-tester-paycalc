@@ -273,7 +273,6 @@ function updateGrade() {
   const combined = base + R.testAllow;
   R.night   = combined * 0.30;         // NS weekday penalty = 30% of combined
   R.wePen   = combined;                // weekend penalty = 100% of combined rate
-  R.otPen   = combined * OT_PEN_MULT; // OT penalty from combined
   R.ot2x    = combined * 2;
   R.ot25x   = combined * 2.5;
   // EX floor = VZI OT penalty rate for this period (fixed floor, higher grades earn their own rate)
@@ -293,7 +292,6 @@ const R = {
   base:             0,
   night:            0,
   wePen:            0,
-  otPen:            0,
   ot2x:             0,
   ot25x:            0,
   eGrade:           0,

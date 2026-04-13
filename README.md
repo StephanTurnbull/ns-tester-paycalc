@@ -35,7 +35,6 @@ A single-file HTML pay calculator for Metro Trains NS Testing staff. Upload your
 ## Known Limitations / To Do
 
 **Calculations to verify**
-- [ ] A082 Electrical Works Allowance — rate data exists but not yet implemented; confirm if applicable
 - [ ] Confirm whether Annual Leave Loading should be included or excluded from the super base
 - [ ] Confirm whether Testing Allowance (A078) pays out on sick/bonus leave days (currently included)
 - [ ] OT penalty multiplier (`OT_PEN_MULT`) is derived from a single payslip ratio — may drift for grades other than VZI
