@@ -10,13 +10,13 @@
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f0f2f5;color:#222;min-height:100vh;padding:24px 16px}
 .wrap{max-width:860px;margin:0 auto}
 
-h1{font-size:1.4rem;color:#1a1a2e;margin-bottom:4px}
+h1{font-size:1.4rem;color:#003d6b;margin-bottom:4px}
 .sub{font-size:0.82rem;color:#aaa;margin-bottom:28px}
 
 /* Upload */
 .upload-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
 .drop-zone{border:2px dashed #ccd;border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;background:white;transition:border-color 0.2s,background 0.2s;position:relative}
-.drop-zone:hover,.drop-zone.drag{border-color:#6c63ff;background:#f8f7ff}
+.drop-zone:hover,.drop-zone.drag{border-color:#0073cf;background:#e8f3fc}
 .drop-zone.loaded{border-color:#4caf50;border-style:solid;background:#f0fdf4}
 .drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .dz-icon{font-size:2rem;margin-bottom:8px}
@@ -24,7 +24,7 @@ h1{font-size:1.4rem;color:#1a1a2e;margin-bottom:4px}
 .dz-hint{font-size:0.75rem;color:#aaa;margin-top:4px}
 .dz-name{font-size:0.8rem;color:#4caf50;font-weight:600;margin-top:6px}
 .dz-summary{font-size:0.75rem;color:#888;margin-top:3px}
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid #ddd;border-top-color:#6c63ff;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid #ddd;border-top-color:#0073cf;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* Schedule */
@@ -34,9 +34,11 @@ h1{font-size:1.4rem;color:#1a1a2e;margin-bottom:4px}
 .week-block h3{font-size:0.8rem;color:#aaa;margin-bottom:8px}
 .day-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f5f5f5;font-size:0.83rem}
 .day-row:last-child{border-bottom:none}
-.day-name{width:30px;font-weight:700;color:#1a1a2e;font-size:0.82rem}
+.day-name{width:30px;font-weight:700;color:#003d6b;font-size:0.82rem}
 .day-date{width:62px;color:#aaa;font-size:0.75rem}
-.day-hrs{width:36px;text-align:right;color:#666;font-family:monospace;font-size:0.8rem}
+.day-hrs{width:36px;text-align:right;color:#666;font-family:monospace;font-size:0.8rem;cursor:pointer;border-radius:4px;padding:1px 3px;transition:background 0.15s}
+.day-hrs:hover{background:#f0f0f0}
+.day-hrs-input{width:46px;text-align:right;font-family:monospace;font-size:0.8rem;border:1px solid #0073cf;border-radius:4px;padding:1px 4px;color:#222;background:#fff;outline:none}
 .type-badge{padding:3px 9px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;border:none;flex-shrink:0;transition:opacity 0.15s}
 .type-badge:hover{opacity:0.8}
 .b-weekday{background:#d4edda;color:#2e7d32}
@@ -53,7 +55,7 @@ h1{font-size:1.4rem;color:#1a1a2e;margin-bottom:4px}
 
 /* Result */
 .result-section{display:none}
-.gross-card{background:#1a1a2e;border-radius:14px;padding:28px;text-align:center;margin-bottom:16px}
+.gross-card{background:#0073cf;border-radius:14px;padding:28px;text-align:center;margin-bottom:16px}
 .gross-label{font-size:0.75rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
 .gross-value{font-size:3rem;font-weight:800;color:white;letter-spacing:-1px}
 .gross-note{font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:6px}
@@ -61,7 +63,7 @@ h1{font-size:1.4rem;color:#1a1a2e;margin-bottom:4px}
 .numbers-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px}
 .num-card{background:white;border-radius:12px;padding:16px 20px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
 .num-label{font-size:0.72rem;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
-.num-value{font-size:1.6rem;font-weight:700;color:#1a1a2e}
+.num-value{font-size:1.6rem;font-weight:700;color:#003d6b}
 .num-note{font-size:0.7rem;color:#ccc;margin-top:2px}
 
 .breakdown-card{background:white;border-radius:14px;padding:20px 22px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
@@ -78,22 +80,24 @@ h1{font-size:1.4rem;color:#1a1a2e;margin-bottom:4px}
 .footnote{font-size:0.72rem;color:#ccc;margin-top:12px;line-height:1.6}
 
 /* Annual estimate */
-.annual-card{background:#f5f3ff;border:1px solid #ddd8ff;border-radius:14px;padding:16px 22px;margin-bottom:16px}
-.annual-label{font-size:0.78rem;font-weight:700;color:#5b4fcf;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.annual-card{background:#e8f3fc;border:1px solid #b3d4ef;border-radius:14px;padding:16px 22px;margin-bottom:16px}
+.annual-label{font-size:0.78rem;font-weight:700;color:#0073cf;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
 .annual-note{font-size:0.72rem;color:#aaa;text-transform:none;letter-spacing:0;font-weight:400;margin-left:6px}
 .annual-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .annual-item-label{font-size:0.7rem;color:#aaa;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px}
-.annual-item-val{font-size:1.25rem;font-weight:700;color:#1a1a2e;font-family:'Courier New',monospace}
+.annual-item-val{font-size:1.25rem;font-weight:700;color:#003d6b;font-family:'Courier New',monospace}
 
 /* Pay grade */
 .grade-card{background:white;border-radius:14px;padding:16px 22px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .grade-card label{font-size:0.78rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap}
 .grade-card select{padding:9px 12px;border:1px solid #dde;border-radius:8px;font-size:0.9rem;color:#222;background:white;cursor:pointer;flex:1;min-width:220px}
-.grade-card select:focus{outline:none;border-color:#6c63ff}
+.grade-card select:focus{outline:none;border-color:#0073cf}
 .grade-pill{font-size:0.78rem;background:#f0f2f5;border-radius:20px;padding:4px 12px;color:#666;white-space:nowrap}
-.grade-pill strong{color:#1a1a2e}
+.grade-pill strong{color:#003d6b}
 
 .error-msg{background:#fff5f5;border:1px solid #ffcdd2;color:#c62828;padding:10px 14px;border-radius:8px;font-size:0.82rem;margin-bottom:12px;display:none}
+.sub a{color:#0073cf;text-decoration:none;font-weight:600}
+.sub a:hover{text-decoration:underline}
 
 /* Pre-tax deductions */
 .ded-section{background:white;border-radius:14px;padding:16px 22px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
@@ -109,7 +113,7 @@ h1{font-size:1.4rem;color:#1a1a2e;margin-bottom:4px}
 <div class="wrap">
 
   <h1>NS Testing Pay Calculator</h1>
-  <p class="sub">Upload both weekly timesheets — get your estimated pay</p>
+  <p class="sub">Upload both weekly timesheets, or <a href="#" id="manualLink" onclick="enterManual();return false;">enter manually</a></p>
 
   <!-- Pay grade selector -->
   <div class="grade-card">
@@ -145,7 +149,7 @@ h1{font-size:1.4rem;color:#1a1a2e;margin-bottom:4px}
 
   <!-- Editable schedule -->
   <div class="schedule-section" id="schedSec">
-    <h2>Detected Schedule — click any badge to change type</h2>
+    <h2 id="schedHeading">Detected Schedule — click any badge to change type</h2>
     <div class="weeks-grid">
       <div class="week-block"><h3 id="wk1label">Week 1</h3><div id="wk1days"></div></div>
       <div class="week-block"><h3 id="wk2label">Week 2</h3><div id="wk2days"></div></div>
@@ -476,24 +480,63 @@ function buildDays(weekEndDate, weekEndStr, rosterCount, overtimeCount, pholeave
   return days;
 }
 
+// ── Manual entry ───────────────────────────────────────────
+function enterManual() {
+  const NAMES = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const DEFAULT_TYPES = ['sunday','weekday','weekday','weekday','dayoff','dayoff','dayoff'];
+  function defaultWeek() {
+    return { weekEnd: null, days: NAMES.map((name, i) => ({
+      day: name, dateStr: '',
+      hours: DEFAULT_TYPES[i] === 'dayoff' ? 0 : 9.5,
+      type: DEFAULT_TYPES[i]
+    })) };
+  }
+  state.weeks[0] = defaultWeek();
+  state.weeks[1] = defaultWeek();
+  document.getElementById('schedHeading').textContent = 'Manual Schedule — click a badge to change type, click hours to edit';
+  renderSchedule();
+  // Show deductions + result shells so runCalc has somewhere to write
+  document.getElementById('dedSec').style.display = 'block';
+  document.getElementById('resultSec').style.display = 'block';
+  runCalc();
+}
+
 // ── Render editable schedule ───────────────────────────────
 function renderSchedule() {
   document.getElementById('schedSec').style.display = 'block';
   [0,1].forEach(wi => {
     const w = state.weeks[wi];
     if (!w) return;
-    document.getElementById('wk'+(wi+1)+'label').textContent = 'Week '+(wi+1)+' — w/e '+w.weekEnd;
+    document.getElementById('wk'+(wi+1)+'label').textContent = w.weekEnd ? 'Week '+(wi+1)+' — w/e '+w.weekEnd : 'Week '+(wi+1);
     const container = document.getElementById('wk'+(wi+1)+'days');
     container.innerHTML = '';
     w.days.forEach((day, di) => {
       const row = document.createElement('div');
       row.className = 'day-row';
-      row.innerHTML = `
-        <span class="day-name">${day.day}</span>
-        <span class="day-date">${day.dateStr}</span>
-        <span class="day-hrs">${day.hours > 0 ? day.hours+'h' : '—'}</span>
-        <button class="type-badge ${TYPE_BG[day.type]}" onclick="cycleType(${wi},${di})">${TYPE_LABEL[day.type]}</button>
-      `;
+
+      const nameEl = document.createElement('span');
+      nameEl.className = 'day-name';
+      nameEl.textContent = day.day;
+
+      const dateEl = document.createElement('span');
+      dateEl.className = 'day-date';
+      dateEl.textContent = day.dateStr;
+
+      const hrsEl = document.createElement('span');
+      hrsEl.className = 'day-hrs';
+      hrsEl.title = 'Click to edit hours';
+      hrsEl.textContent = day.hours > 0 ? day.hours + 'h' : '—';
+      hrsEl.addEventListener('click', () => editHours(hrsEl, wi, di));
+
+      const badge = document.createElement('button');
+      badge.className = 'type-badge ' + TYPE_BG[day.type];
+      badge.textContent = TYPE_LABEL[day.type];
+      badge.addEventListener('click', () => cycleType(wi, di));
+
+      row.appendChild(nameEl);
+      row.appendChild(dateEl);
+      row.appendChild(hrsEl);
+      row.appendChild(badge);
       container.appendChild(row);
     });
   });
@@ -509,6 +552,31 @@ function cycleType(wi, di) {
   else day.hours = 9.5;
   renderSchedule();
   runCalc();
+}
+
+function editHours(spanEl, wi, di) {
+  const day = state.weeks[wi].days[di];
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.className = 'day-hrs-input';
+  input.value = day.hours;
+  input.min = 0;
+  input.step = 0.1;
+  spanEl.replaceWith(input);
+  input.focus();
+  input.select();
+
+  function commit() {
+    const val = parseFloat(input.value);
+    if (!isNaN(val) && val >= 0) day.hours = Math.round(val * 100) / 100;
+    renderSchedule();
+    if (state.weeks[0] && state.weeks[1]) runCalc();
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { input.removeEventListener('blur', commit); renderSchedule(); }
+  });
 }
 
 // ── Pay calculation ────────────────────────────────────────
