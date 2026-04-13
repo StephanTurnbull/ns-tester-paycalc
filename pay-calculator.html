@@ -200,7 +200,7 @@ h1{font-size:1.4rem;color:#1a1a2e;margin-bottom:4px}
     <div class="breakdown-card">
       <h2>Breakdown</h2>
       <div id="bdRows"></div>
-      <p class="footnote">* Tax estimated using ATO 2025–26 resident individual rates (Stage 3) + 2% Medicare levy, annualised from taxable income. All figures indicative only.</p>
+      <p class="footnote">* Tax estimated using ATO 2025–26 resident individual rates (Stage 3) + 2% Medicare levy, annualised from taxable income. Employer PAYG withholding uses ATO Schedule 1 coefficients which may produce slightly different results (~$15–30/fortnight variance at higher incomes). All figures indicative only.</p>
     </div>
   </div>
 
@@ -522,7 +522,7 @@ function cycleType(wi, di) {
 //   Rostered PH 1.0x = base only               (9.5h standard — incl. bonus days)
 //   PHOLEAVE         = base × 7.6h             (non-rostered PH, not worked)
 //   Day Off          = $0
-// E Grade allowance applies to all physically worked shifts (Weekday/Sunday/EX/OT/PH Worked)
+// E Grade allowance applies to all physically worked shifts (Weekday/Sunday/EX/OT/PH Worked/Sick/WLBP) and Annual Leave
 function runCalc() {
   const allDays = [...state.weeks[0].days, ...state.weeks[1].days];
 
@@ -547,7 +547,7 @@ function runCalc() {
         phWkdHrs  += h; eGradeHrs += h; break;
       case 'sick':
       case 'rostered_ph':
-        sickHrs   += h; break;
+        sickHrs   += h; eGradeHrs += h; break;
       case 'pholeave':
         phLeaveHrs  += h; break;
       case 'annual_leave':
@@ -571,11 +571,11 @@ function runCalc() {
   const phWkdAmt       = phWkdHrs     * R.ot25x;
   const sickAmt        = sickHrs      * combined;         // 1x combined rate
   const phLeaveAmt     = phLeaveHrs   * combined;         // 1x combined rate × 7.6h
-  const alWdNormalAmt  = alWdHrs      * combined;              // AL weekday — base component
-  const alWdPenAmt     = alWdHrs      * R.night;               // AL weekday — 30% penalty
-  const alSunNormalAmt = alSunHrs     * combined;              // AL sunday — base component
-  const alSunPenAmt    = alSunHrs     * R.wePen;               // AL sunday — 100% penalty
-  const alLoadingAmt   = (alWdHrs + alSunHrs) * combined * 0.20; // Annual Leave Loading — 20% of combined (base + testing)
+  const alWdNormalAmt   = alWdHrs      * combined;                    // AL weekday — 1x base
+  const alWdExcessAmt   = alWdHrs      * combined * 0.10;             // AL weekday — 10% excess (night penalty 30% − loading 20%)
+  const alSunNormalAmt  = alSunHrs     * combined;                    // AL sunday — 1x base
+  const alSunExcessAmt  = alSunHrs     * 0.80 * combined;             // AL sunday — 80% excess (100% penalty − 20% loading)
+  const alLoadingAmt    = (alWdHrs + alSunHrs) * combined * 0.20;     // AL loading — 20% on all AL hours (Allowances)
   const eGradeAmt        = eGradeHrs  * R.eGrade;
   const seniorTestAmt    = eGradeHrs  * R.seniorTestAllow;
 
@@ -584,14 +584,14 @@ function runCalc() {
                 exNormalAmt + exPenAmt + exAllow +
                 ot2xAmt +
                 phWkdAmt + sickAmt + phLeaveAmt +
-                alWdNormalAmt + alWdPenAmt + alSunNormalAmt + alSunPenAmt + alLoadingAmt +
+                alWdNormalAmt + alWdExcessAmt + alSunNormalAmt + alSunExcessAmt + alLoadingAmt +
                 eGradeAmt + seniorTestAmt;
 
   const preTaxDed = parseFloat(document.getElementById('preTaxInput').value) || 0;
   const taxable = gross - preTaxDed;
   const tax = estimateTax(taxable);
   const net = taxable - tax;
-  const superBase = gross - ot2xAmt - phWkdAmt;
+  const superBase = gross - ot2xAmt - phWkdAmt - sickAmt;
   const superAmt  = superBase * 0.12;
 
   document.getElementById('dedSec').style.display = 'block';
@@ -632,15 +632,14 @@ function runCalc() {
   if (phWkdHrs > 0)     row('PH Overtime Shift (250%)',         `${h(phWkdHrs)} × ${cur(R.ot25x)}/hr`,           phWkdAmt);
   if (sickHrs > 0)      row('Sick/Bonus/WLBP/PH (100%)',         `${h(sickHrs)} × ${cur(combined)}/hr`,            sickAmt);
   if (phLeaveHrs > 0)   row('Non-Roster PH Leave',              `${h(phLeaveHrs)} × ${cur(combined)}/hr`,         phLeaveAmt);
-  if (alWdHrs > 0)      row('Annual Leave — Weekday',           `${h(alWdHrs)} × ${cur(combined)}/hr`,            alWdNormalAmt);
-  if (alWdHrs > 0)      row('Annual Leave — Weekday Penalty 30%', `${h(alWdHrs)} × ${cur(R.night)}/hr`,          alWdPenAmt);
-  if (alSunHrs > 0)     row('Annual Leave — Sunday',            `${h(alSunHrs)} × ${cur(combined)}/hr`,           alSunNormalAmt);
-  if (alSunHrs > 0)     row('Annual Leave — Sunday Penalty 100%', `${h(alSunHrs)} × ${cur(R.wePen)}/hr`,         alSunPenAmt);
+  if (alWdHrs + alSunHrs > 0) row('Annual Leave',                    `${h(alWdHrs + alSunHrs)} × ${cur(combined)}/hr`,                      alWdNormalAmt + alSunNormalAmt);
+  if (alWdHrs > 0)            row('Annual Leave NS Excess (10%)',     `${h(alWdHrs)} × ${cur(combined * 0.10)}/hr`,                          alWdExcessAmt);
+  if (alSunHrs > 0)           row('Annual Leave NS Sunday Excess (80%)', `${h(alSunHrs * 0.80)} × ${cur(combined)}/hr`,                     alSunExcessAmt);
 
   sec('Allowances');
+  if (alLoadingAmt > 0)   row('Annual Leave Loading (20%)',          `${h(alWdHrs + alSunHrs)} × ${cur(combined * 0.20)}/hr`, alLoadingAmt);
   if (eGradeHrs > 0)      row('E Grade Electrical — Infra (A440)',  `${h(eGradeHrs)} × ${cur(R.eGrade)}/hr`,           eGradeAmt);
   if (seniorTestAmt > 0)  row('Senior Testing Allowance (A077)',    `${h(eGradeHrs)} × ${cur(R.seniorTestAllow)}/hr`,  seniorTestAmt);
-  if (alLoadingAmt > 0) row('Annual Leave Loading',             `${h(alWdHrs+alSunHrs)} × ${cur(combined * 0.20)}/hr`, alLoadingAmt);
   if (exHrs > 0)      row('Site & JumpUp Allowance',             `${h(exHrs)} × $10.50/hr`, exAllow);
 
   tot('Gross', gross);
