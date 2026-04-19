@@ -6,107 +6,142 @@
 <title>NS Testing Pay Calculator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap');
+
+:root {
+  --c-primary:   #006bc2;
+  --c-secondary: #0073cf;
+  --c-bg:        #ecedf1;
+  --c-card:      #ffffff;
+  --c-light:     #eef3f8;
+  --c-text:      #1f1f1f;
+  --c-muted:     #696969;
+  --c-faint:     #a3a3a3;
+  --c-border:    #d6d6d6;
+  --c-divider:   #e4e4e4;
+  --c-error:     #d11c2e;
+  --c-success:   #2a9940;
+  --r-sm:   5px;
+  --r-md:   9px;
+  --r-full: 50px;
+  --sh-sm: rgba(0,0,0,0.35) 0px 2px 4px 0px;
+  --sh-md: rgba(0,0,0,0.35) 0px 3px 8px 0px;
+  --tr: 0.3s ease-in-out;
+}
+
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f0f2f5;color:#222;min-height:100vh;padding:24px 16px}
+
+body{
+  font-family:'Titillium Web',Calibri,sans-serif;
+  background:var(--c-bg);
+  color:var(--c-text);
+  min-height:100vh;
+  padding:32px 16px;
+  font-size:16px;
+  line-height:22px;
+}
+
 .wrap{max-width:860px;margin:0 auto}
 
-h1{font-size:1.4rem;color:#003d6b;margin-bottom:4px}
-.sub{font-size:0.85rem;color:#888;margin-bottom:28px}
+h1{font-size:22px;font-weight:400;color:var(--c-primary);margin-bottom:6px;line-height:26px}
+.sub{font-size:15px;color:var(--c-muted);margin-bottom:25px}
+.sub a{color:var(--c-primary);text-decoration:none;font-weight:600}
+.sub a:hover{text-decoration:underline}
 
 /* Upload */
-.upload-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.drop-zone{border:2px dashed #ccd;border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;background:white;transition:border-color 0.2s,background 0.2s;position:relative}
-.drop-zone:hover,.drop-zone.drag{border-color:#0073cf;background:#e8f3fc}
-.drop-zone.loaded{border-color:#4caf50;border-style:solid;background:#f0fdf4}
+.upload-row{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:22px}
+.drop-zone{border:2px dashed var(--c-border);border-radius:var(--r-sm);padding:29px 18px;text-align:center;cursor:pointer;background:var(--c-card);transition:border-color var(--tr),background var(--tr);position:relative;box-shadow:var(--sh-sm)}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--c-secondary);background:var(--c-light)}
+.drop-zone.loaded{border-color:var(--c-success);border-style:solid;background:#f4fdf6}
 .drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.dz-icon{font-size:2rem;margin-bottom:8px}
-.dz-label{font-size:0.88rem;font-weight:600;color:#333}
-.dz-hint{font-size:0.78rem;color:#999;margin-top:4px}
-.dz-name{font-size:0.82rem;color:#4caf50;font-weight:600;margin-top:6px}
-.dz-summary{font-size:0.78rem;color:#777;margin-top:3px}
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid #ddd;border-top-color:#0073cf;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto}
+.dz-icon{font-size:2rem;margin-bottom:9px}
+.dz-label{font-size:15px;font-weight:600;color:var(--c-text)}
+.dz-hint{font-size:13px;color:var(--c-faint);margin-top:6px}
+.dz-name{font-size:13px;color:var(--c-success);font-weight:600;margin-top:6px}
+.dz-summary{font-size:13px;color:var(--c-muted);margin-top:3px}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--c-border);border-top-color:var(--c-secondary);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* Schedule */
-.schedule-section{background:white;border-radius:14px;padding:20px 22px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:none}
-.schedule-section h2{font-size:0.85rem;font-weight:700;color:#0073cf;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px}
-.weeks-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.week-block h3{font-size:0.82rem;font-weight:700;color:#003d6b;margin-bottom:8px}
-.day-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:0.9rem}
+.schedule-section{background:var(--c-card);border-radius:var(--r-sm);padding:22px 25px;margin-bottom:18px;box-shadow:var(--sh-sm);display:none}
+.schedule-section h2{font-size:13px;font-weight:700;color:var(--c-primary);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:15px}
+.weeks-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.week-block h3{font-size:13px;font-weight:700;color:var(--c-text);margin-bottom:9px;text-transform:uppercase;letter-spacing:0.4px}
+.day-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--c-divider);font-size:15px}
 .day-row:last-child{border-bottom:none}
-.day-name{width:30px;font-weight:700;color:#003d6b;font-size:0.88rem}
-.day-date{width:62px;color:#888;font-size:0.78rem}
-.day-hrs{width:36px;text-align:right;color:#666;font-family:monospace;font-size:0.8rem;cursor:pointer;border-radius:4px;padding:1px 3px;transition:background 0.15s}
-.day-hrs:hover{background:#f0f0f0}
-.day-hrs-input{width:46px;text-align:right;font-family:monospace;font-size:0.8rem;border:1px solid #0073cf;border-radius:4px;padding:1px 4px;color:#222;background:#fff;outline:none}
-.type-badge{padding:3px 9px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;border:none;flex-shrink:0;transition:opacity 0.15s}
-.type-badge:hover{opacity:0.8}
-.b-weekday{background:#d4edda;color:#2e7d32}
-.b-sunday{background:#fff3cd;color:#856404}
-.b-overtime{background:#f8d7da;color:#721c24}
-.b-ph_worked{background:#e2d9f3;color:#5b2c8d}
-.b-pholeave{background:#d1ecf1;color:#0c5460}
-.b-dayoff{background:#f0f0f0;color:#888}
-.b-ex{background:#dce4f7;color:#3040a0}
-.b-sick{background:#d0e4ff;color:#1a4bab}
-.b-rostered_ph{background:#d0f0ec;color:#1a6b64}
+.day-name{width:30px;font-weight:700;color:var(--c-text);font-size:14px}
+.day-date{width:62px;color:var(--c-muted);font-size:13px}
+.day-hrs{width:36px;text-align:right;color:var(--c-muted);font-family:monospace;font-size:13px;cursor:pointer;border-radius:var(--r-sm);padding:1px 3px;transition:background var(--tr)}
+.day-hrs:hover{background:var(--c-bg)}
+.day-hrs-input{width:46px;text-align:right;font-family:monospace;font-size:13px;border:1px solid var(--c-secondary);border-radius:var(--r-sm);padding:1px 4px;color:var(--c-text);background:var(--c-card);outline:none}
+.type-badge{padding:4px 12px;border-radius:var(--r-full);font-size:12px;font-weight:600;cursor:pointer;border:none;flex-shrink:0;transition:opacity var(--tr);font-family:inherit}
+.type-badge:hover{opacity:0.75}
+.b-weekday    {background:#d3ecf4;color:#005ca6}
+.b-sunday     {background:#fef3c7;color:#7a5800}
+.b-overtime   {background:#fde8d0;color:#8a4000}
+.b-ph_worked  {background:#e2d9f3;color:#5b2c8d}
+.b-pholeave   {background:var(--c-light);color:var(--c-primary)}
+.b-dayoff     {background:var(--c-bg);color:var(--c-muted)}
+.b-ex         {background:#dce7f5;color:#224e8e}
+.b-sick       {background:#d3ecf4;color:#005ca6}
+.b-rostered_ph{background:#d3ecf4;color:#005ca6}
 .b-annual_leave{background:#fde8d0;color:#8a4000}
-.edit-hint{font-size:0.75rem;color:#999;margin-top:10px;text-align:right}
+.edit-hint{font-size:12px;color:var(--c-faint);margin-top:12px;text-align:right}
 
 /* Result */
 .result-section{display:none}
-.gross-card{background:#0073cf;border-radius:14px;padding:28px;text-align:center;margin-bottom:16px}
-.gross-label{font-size:0.75rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
-.gross-value{font-size:3rem;font-weight:800;color:white;letter-spacing:-1px}
-.gross-note{font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:6px}
+.gross-card{background:var(--c-secondary);border-radius:var(--r-sm);padding:32px;text-align:center;margin-bottom:15px;box-shadow:var(--sh-md)}
+.gross-label{font-size:13px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:9px}
+.gross-value{font-size:50px;font-weight:700;color:#fff;letter-spacing:-1px;line-height:60px}
+.gross-note{font-size:13px;color:rgba(255,255,255,0.4);margin-top:9px}
 
-.numbers-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px}
-.num-card{background:white;border-radius:12px;padding:16px 20px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
-.num-label{font-size:0.75rem;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
-.num-value{font-size:1.6rem;font-weight:700;color:#003d6b}
-.num-note{font-size:0.73rem;color:#999;margin-top:2px}
+.numbers-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:15px}
+.num-card{background:var(--c-card);border-radius:var(--r-sm);padding:18px 15px;box-shadow:var(--sh-sm)}
+.num-label{font-size:12px;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.num-value{font-size:22px;font-weight:700;color:var(--c-primary);line-height:26px}
+.num-note{font-size:12px;color:var(--c-faint);margin-top:3px}
 
-.breakdown-card{background:white;border-radius:14px;padding:20px 22px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
-.breakdown-card h2{font-size:0.82rem;font-weight:700;color:#0073cf;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px}
-.bd-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:0.92rem}
+.breakdown-card{background:var(--c-card);border-radius:var(--r-sm);padding:22px 25px;box-shadow:var(--sh-sm)}
+.breakdown-card h2{font-size:13px;font-weight:700;color:var(--c-primary);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:15px}
+.bd-row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--c-divider);font-size:15px}
 .bd-row:last-child{border-bottom:none}
-.bd-desc{color:#333}
-.bd-meta{font-size:0.78rem;color:#999;margin-left:6px}
-.bd-val{font-family:'Courier New',monospace;font-size:0.9rem;color:#111;font-weight:600}
-.bd-val.neg{color:#c62828}
-.bd-section{font-size:0.72rem;font-weight:700;color:#0073cf;text-transform:uppercase;letter-spacing:0.6px;padding:14px 0 4px;border-bottom:none}
-.bd-total{font-weight:700;font-size:1rem;border-top:2px solid #e0e0e0;padding-top:10px;margin-top:6px}
-
-.footnote{font-size:0.75rem;color:#999;margin-top:12px;line-height:1.6}
+.bd-desc{color:var(--c-text)}
+.bd-meta{font-size:13px;color:var(--c-faint);margin-left:6px}
+.bd-val{font-family:'Courier New',monospace;font-size:14px;color:var(--c-text);font-weight:600}
+.bd-val.neg{color:var(--c-error)}
+.bd-section{font-size:12px;font-weight:700;color:var(--c-primary);text-transform:uppercase;letter-spacing:0.6px;padding:15px 0 3px;border-bottom:none}
+.rate-inline{width:4.8em;font-size:13px;font-family:inherit;color:var(--c-muted);background:none;border:none;border-bottom:1px dashed var(--c-border);padding:0 1px;text-align:right;outline:none;cursor:text}
+.rate-inline:hover{border-bottom-color:var(--c-primary);color:var(--c-primary)}
+.rate-inline:focus{border-bottom:1px solid var(--c-primary);color:var(--c-text);background:var(--c-light);border-radius:2px}
+.bd-total{font-weight:700;font-size:16px;border-top:2px solid var(--c-border);padding-top:12px;margin-top:6px}
+.footnote{font-size:13px;color:var(--c-faint);margin-top:15px;line-height:1.6}
 
 /* Annual estimate */
-.annual-card{background:#e8f3fc;border:1px solid #b3d4ef;border-radius:14px;padding:16px 22px;margin-bottom:16px}
-.annual-label{font-size:0.78rem;font-weight:700;color:#0073cf;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
-.annual-note{font-size:0.72rem;color:#aaa;text-transform:none;letter-spacing:0;font-weight:400;margin-left:6px}
+.annual-card{background:var(--c-light);border:1px solid #c8dbec;border-radius:var(--r-sm);padding:18px 25px;margin-bottom:15px}
+.annual-label{font-size:13px;font-weight:700;color:var(--c-primary);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px}
+.annual-note{font-size:12px;color:var(--c-faint);text-transform:none;letter-spacing:0;font-weight:400;margin-left:6px}
 .annual-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.annual-item-label{font-size:0.73rem;color:#888;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px}
-.annual-item-val{font-size:1.25rem;font-weight:700;color:#003d6b;font-family:'Courier New',monospace}
+.annual-item-label{font-size:12px;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px}
+.annual-item-val{font-size:20px;font-weight:700;color:var(--c-primary);font-family:'Courier New',monospace;line-height:22px}
 
 /* Pay grade */
-.grade-card{background:white;border-radius:14px;padding:16px 22px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.grade-card label{font-size:0.78rem;font-weight:700;color:#0073cf;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap}
-.grade-card select{padding:9px 12px;border:1px solid #dde;border-radius:8px;font-size:0.9rem;color:#222;background:white;cursor:pointer;flex:1;min-width:220px}
-.grade-card select:focus{outline:none;border-color:#0073cf}
-.grade-pill{font-size:0.78rem;background:#f0f2f5;border-radius:20px;padding:4px 12px;color:#666;white-space:nowrap}
-.grade-pill strong{color:#003d6b}
+.grade-card{background:var(--c-card);border-radius:var(--r-sm);padding:18px 25px;margin-bottom:18px;box-shadow:var(--sh-sm);display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.grade-card label{font-size:13px;font-weight:700;color:var(--c-primary);text-transform:uppercase;letter-spacing:0.6px;white-space:nowrap}
+.grade-card select{padding:9px 12px;border:1px solid var(--c-border);border-radius:var(--r-sm);font-size:15px;color:var(--c-text);background:var(--c-card);cursor:pointer;flex:1;min-width:220px;font-family:inherit;transition:border-color var(--tr)}
+.grade-card select:focus{outline:2px solid var(--c-secondary);outline-offset:0;border-color:var(--c-secondary)}
+.grade-pill{font-size:13px;background:var(--c-light);border-radius:var(--r-full);padding:6px 15px;color:var(--c-muted);white-space:nowrap}
+.grade-pill strong{color:var(--c-primary)}
 
-.error-msg{background:#fff5f5;border:1px solid #ffcdd2;color:#c62828;padding:10px 14px;border-radius:8px;font-size:0.82rem;margin-bottom:12px;display:none}
-.sub a{color:#0073cf;text-decoration:none;font-weight:600}
-.sub a:hover{text-decoration:underline}
+.error-msg{background:#fff0f0;border:1px solid #f5c6c6;color:var(--c-error);padding:12px 15px;border-radius:var(--r-sm);font-size:14px;margin-bottom:12px;display:none}
 
 /* Pre-tax deductions */
-.ded-section{background:white;border-radius:14px;padding:16px 22px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
-.ded-label{display:block;font-size:0.8rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
-.ded-row{display:flex;align-items:center;gap:10px}
-.ded-prefix{font-size:1.1rem;color:#aaa;font-weight:600}
-.ded-section input{width:140px;padding:9px 12px;border:1px solid #dde;border-radius:8px;font-size:1rem;color:#222}
-.ded-section input:focus{outline:none;border-color:#6c63ff}
-.ded-hint{font-size:0.75rem;color:#bbb}
+.ded-section{background:var(--c-card);border-radius:var(--r-sm);padding:18px 25px;margin-bottom:18px;box-shadow:var(--sh-sm)}
+.ded-label{display:block;font-size:13px;font-weight:700;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px}
+.ded-row{display:flex;align-items:center;gap:12px}
+.ded-prefix{font-size:18px;color:var(--c-faint);font-weight:600}
+.ded-section input{width:140px;padding:9px 12px;border:1px solid var(--c-border);border-radius:var(--r-sm);font-size:16px;color:var(--c-text);font-family:inherit;transition:border-color var(--tr)}
+.ded-section input:focus{outline:2px solid var(--c-secondary);outline-offset:0;border-color:var(--c-secondary)}
+.ded-hint{font-size:13px;color:var(--c-faint)}
 </style>
 </head>
 <body>
@@ -190,6 +225,11 @@ h1{font-size:1.4rem;color:#003d6b;margin-bottom:4px}
         <div class="num-value" id="superVal">—</div>
         <div class="num-note">12% SG on gross (2025–26)</div>
       </div>
+      <div class="num-card">
+        <div class="num-label">Hours Worked</div>
+        <div class="num-value" id="hoursVal">—</div>
+        <div class="num-note">Weekday, Sun, EX, OT, PH worked</div>
+      </div>
     </div>
     <div class="annual-card">
       <div class="annual-label">Annual Estimate <span class="annual-note">if every fortnight matched this one (× 26)</span></div>
@@ -239,6 +279,8 @@ const SENIOR_TESTING_ALLOW_RATES = [7.6460,7.8372,7.9939,8.1538,8.2965,8.5261,8.
 const SENIOR_GRADES = ['VZO','VZJ'];
 // OT Penalty is proportional to base (ratio derived from payslip)
 const OT_PEN_MULT = 86.6822 / 77.9758;   // ≈ 1.1117
+// Site & JumpUp Allowance rate — editable in the breakdown
+let siteJumpRate = 10.50;
 
 function currentPeriodIdx() {
   const now = new Date();
@@ -272,7 +314,7 @@ function updateGrade() {
   // All rates derived from combined (base + testing allowance) — matches payslip
   R.base           = base;
   R.testAllow      = TESTING_ALLOW_RATES[pi];
-  R.seniorTestAllow = SENIOR_GRADES.includes(code) ? SENIOR_TESTING_ALLOW_RATES[pi] : 0;
+  R.seniorTestAllow = 0; // not applicable to night shift
   R.eGrade         = EGRADE_RATES[pi];
   const combined = base + R.testAllow;
   R.night   = combined * 0.30;         // NS weekday penalty = 30% of combined
@@ -590,7 +632,7 @@ function editHours(spanEl, wi, di) {
 //   Rostered PH 1.0x = base only               (9.5h standard — incl. bonus days)
 //   PHOLEAVE         = base × 7.6h             (non-rostered PH, not worked)
 //   Day Off          = $0
-// E Grade allowance applies to all physically worked shifts (Weekday/Sunday/EX/OT/PH Worked/Sick/WLBP) and Annual Leave
+// E Grade allowance applies to physically worked shifts only: Weekday, Sunday, Project EX, Overtime, PH Worked
 function runCalc() {
   const allDays = [...state.weeks[0].days, ...state.weeks[1].days];
 
@@ -615,12 +657,12 @@ function runCalc() {
         phWkdHrs  += h; eGradeHrs += h; break;
       case 'sick':
       case 'rostered_ph':
-        sickHrs   += h; eGradeHrs += h; break;
+        sickHrs   += h; break;
       case 'pholeave':
         phLeaveHrs  += h; break;
       case 'annual_leave':
         if (d.day === 'SUN') alSunHrs += h; else alWdHrs += h;
-        eGradeHrs += h; break;
+        break;
     }
   });
 
@@ -634,7 +676,7 @@ function runCalc() {
   const exRate         = Math.max(combined, R.exFloor);
   const exNormalAmt    = exHrs        * exRate;   // normal rate component
   const exPenAmt       = exHrs        * exRate;   // OT penalty component (same rate again)
-  const exAllow        = exHrs        * 10.50;            // Site $5.50 + JumpUp $5.00 per hour
+  const exAllow        = exHrs        * siteJumpRate;     // Site & JumpUp rate (editable, default $10.50)
   const ot2xAmt        = otHrs        * R.ot2x;
   const phWkdAmt       = phWkdHrs     * R.ot25x;
   const sickAmt        = sickHrs      * combined;         // 1x combined rate
@@ -659,7 +701,7 @@ function runCalc() {
   const taxable = gross - preTaxDed;
   const tax = estimateTax(taxable);
   const net = taxable - tax;
-  const superBase = gross - ot2xAmt - phWkdAmt - sickAmt;
+  const superBase = gross - ot2xAmt - phWkdAmt;
   const superAmt  = superBase * 0.12;
 
   document.getElementById('dedSec').style.display = 'block';
@@ -670,6 +712,7 @@ function runCalc() {
   document.getElementById('taxVal').textContent = fmt(tax);
   document.getElementById('netVal').textContent = fmt(net);
   document.getElementById('superVal').textContent = fmt(superAmt);
+  document.getElementById('hoursVal').textContent = eGradeHrs % 1 === 0 ? eGradeHrs : eGradeHrs.toFixed(2);
 
   document.getElementById('annGross').textContent = fmt(gross * 26);
   document.getElementById('annTax').textContent   = fmt(tax   * 26);
@@ -708,7 +751,11 @@ function runCalc() {
   if (alLoadingAmt > 0)   row('Annual Leave Loading (20%)',          `${h(alWdHrs + alSunHrs)} × ${cur(combined * 0.20)}/hr`, alLoadingAmt);
   if (eGradeHrs > 0)      row('E Grade Electrical — Infra (A440)',  `${h(eGradeHrs)} × ${cur(R.eGrade)}/hr`,           eGradeAmt);
   if (seniorTestAmt > 0)  row('Senior Testing Allowance (A077)',    `${h(eGradeHrs)} × ${cur(R.seniorTestAllow)}/hr`,  seniorTestAmt);
-  if (exHrs > 0)      row('Site & JumpUp Allowance',             `${h(exHrs)} × $10.50/hr`, exAllow);
+  if (exHrs > 0)      rows.push(`
+    <div class="bd-row">
+      <span class="bd-desc">Site &amp; JumpUp Allowance<span class="bd-meta">${h(exHrs)} × $<input class="rate-inline" type="number" value="${siteJumpRate.toFixed(2)}" min="0" step="0.01" title="Click to edit rate" onchange="siteJumpRate=parseFloat(this.value)||0;runCalc()">/hr</span></span>
+      <span class="bd-val">${fmt(exAllow)}</span>
+    </div>`);
 
   tot('Gross', gross);
 
