@@ -271,9 +271,6 @@ const PAY_GRADES = [
 const EGRADE_RATES        = [1.7695,1.8137,1.8500,1.8870,1.9200,1.9731,2.0077,2.0429];
 // Testing Allowance (A078) — applies to every worked hour (1% raise from Jan-26)
 const TESTING_ALLOW_RATES = [5.9297,6.0779,6.1995,6.3235,6.4342,6.6123,6.7280,6.8458];
-// Senior Testing Allowance (A077) — VZK and VZL only, every worked hour (1% raise applied from Jan-26)
-const SENIOR_TESTING_ALLOW_RATES = [7.6460,7.8372,7.9939,8.1538,8.2965,8.5261,8.6753,8.8271];
-const SENIOR_GRADES = ['VZK','VZL'];
 // OT Penalty is proportional to base (ratio derived from payslip)
 const OT_PEN_MULT = 86.6822 / 77.9758;   // ≈ 1.1117
 // Site & JumpUp Allowance rate — editable in the breakdown
@@ -294,8 +291,7 @@ function populateGradeSelect() {
   PAY_GRADES.forEach(g => {
     const opt = document.createElement('option');
     opt.value = g.code;
-    const allowRate = SENIOR_GRADES.includes(g.code) ? SENIOR_TESTING_ALLOW_RATES[pi] : TESTING_ALLOW_RATES[pi];
-    opt.textContent = `${g.code} — ${g.desc}  ($${(g.rates[pi] + allowRate).toFixed(2)}/hr)`;
+    opt.textContent = `${g.code} — ${g.desc}  ($${(g.rates[pi] + TESTING_ALLOW_RATES[pi]).toFixed(2)}/hr)`;
     sel.appendChild(opt);
   });
 }
@@ -311,8 +307,7 @@ function updateGrade() {
 
   // All rates derived from combined (base + testing allowance) — matches payslip
   R.base           = base;
-  R.testAllow       = SENIOR_GRADES.includes(code) ? SENIOR_TESTING_ALLOW_RATES[pi] : TESTING_ALLOW_RATES[pi];
-  R.seniorTestAllow = 0;
+  R.testAllow       = TESTING_ALLOW_RATES[pi];
   R.eGrade         = EGRADE_RATES[pi];
   const combined = base + R.testAllow;
   R.night   = combined * 0.30;         // NS weekday penalty = 30% of combined
@@ -342,7 +337,6 @@ const R = {
   ot25x:            0,
   eGrade:           0,
   testAllow:        0,
-  seniorTestAllow:  0,
   exFloor:          0,
   phHrs:            7.6,  // fixed — not grade-dependent
 };
@@ -521,7 +515,6 @@ function runCalc() {
   const alSunExcessAmt  = alSunHrs     * 0.80 * combined;
   const alLoadingAmt    = (alWdHrs + alSunHrs) * combined * 0.20;
   const eGradeAmt        = eGradeHrs  * R.eGrade;
-  const seniorTestAmt    = eGradeHrs  * R.seniorTestAllow;
 
   const gross = wdNormalAmt + wdNightAmt +
                 sunNormalAmt + sunWePenAmt +
@@ -529,7 +522,7 @@ function runCalc() {
                 ot2xAmt +
                 phWkdAmt + sickAmt + phLeaveAmt +
                 alWdNormalAmt + alWdExcessAmt + alSunNormalAmt + alSunExcessAmt + alLoadingAmt +
-                eGradeAmt + seniorTestAmt;
+                eGradeAmt;
 
   const preTaxDed = parseFloat(document.getElementById('preTaxInput').value) || 0;
   const taxable = gross - preTaxDed;
@@ -588,7 +581,6 @@ function runCalc() {
   sec('Allowances');
   if (alLoadingAmt > 0)   row('Annual Leave Loading (20%)',          `${h(alWdHrs + alSunHrs)} × ${cur(combined * 0.20)}/hr`, alLoadingAmt);
   if (eGradeHrs > 0)      row('E Grade Electrical — Infra (A440)',  `${h(eGradeHrs)} × ${cur(R.eGrade)}/hr`,           eGradeAmt);
-  if (seniorTestAmt > 0)  row('Senior Testing Allowance (A077)',    `${h(eGradeHrs)} × ${cur(R.seniorTestAllow)}/hr`,  seniorTestAmt);
   if (exHrs > 0)      rows.push(`
     <div class="bd-row">
       <span class="bd-desc">Site &amp; JumpUp Allowance<span class="bd-meta">${h(exHrs)} × $<input class="rate-inline" type="number" value="${siteJumpRate.toFixed(2)}" min="0" step="0.01" title="Click to edit rate" onchange="siteJumpRate=parseFloat(this.value)||0;runCalc()">/hr</span></span>

@@ -7,7 +7,7 @@ A single-file HTML pay calculator for Metro Trains NS Testing staff. Enter your 
 - **Manual schedule entry** — click any day badge to set shift type, click hours to edit
 - **All shift types** — Weekday (130%), Sunday (200%), Project EX (200%), Overtime (200%), PH Worked (250%), Sick/Bonus/WLBP, Non-Roster PH Leave, Annual Leave, Day Off
 - **Annual Leave** — split into base + penalty components matching payslip layout, including Annual Leave Loading (20%)
-- **All pay grades** — VB8 through VZL, with correct base rates and allowances across all pay periods from Jul-23 to Jan-27; VB8–VZJ use Testing Allowance (A078), VZK–VZL use Senior Testing Allowance (A077)
+- **All pay grades** — VB8 through VZL, with correct base rates and Testing Allowance (A078) across all pay periods from Jul-23 to Jan-27
 - **Automatic overtime split** — Weekday and Sunday shifts over 9.5h automatically split at the normal rate for the first 9.5h and overtime rate (200%) for any excess, excluded from super
 - **E Grade Electrical Allowance (A440)** — applied to all physically worked and annual leave hours
 - **Pay period aware** — rates update automatically based on today's date, including the 1% rise from Jan-26
