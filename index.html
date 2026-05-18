@@ -269,9 +269,9 @@ const PAY_GRADES = [
 const EGRADE_RATES        = [1.7695,1.8137,1.8500,1.8870,1.9200,1.9731,2.0077,2.0429];
 // Testing Allowance (A078) — applies to every worked hour (1% raise from Jan-26)
 const TESTING_ALLOW_RATES = [5.9297,6.0779,6.1995,6.3235,6.4342,6.6123,6.7280,6.8458];
-// Senior Testing Allowance (A077) — VZO and VZJ only, every worked hour (1% raise applied from Jan-26)
+// Senior Testing Allowance (A077) — VZK and VZL only, every worked hour (1% raise applied from Jan-26)
 const SENIOR_TESTING_ALLOW_RATES = [7.6460,7.8372,7.9939,8.1538,8.2965,8.5261,8.6753,8.8271];
-const SENIOR_GRADES = ['VZO','VZJ'];
+const SENIOR_GRADES = ['VZK','VZL'];
 // OT Penalty is proportional to base (ratio derived from payslip)
 const OT_PEN_MULT = 86.6822 / 77.9758;   // ≈ 1.1117
 // Site & JumpUp Allowance rate — editable in the breakdown
@@ -292,7 +292,8 @@ function populateGradeSelect() {
   PAY_GRADES.forEach(g => {
     const opt = document.createElement('option');
     opt.value = g.code;
-    opt.textContent = `${g.code} — ${g.desc}  ($${(g.rates[pi] + TESTING_ALLOW_RATES[pi]).toFixed(2)}/hr)`;
+    const allowRate = SENIOR_GRADES.includes(g.code) ? SENIOR_TESTING_ALLOW_RATES[pi] : TESTING_ALLOW_RATES[pi];
+    opt.textContent = `${g.code} — ${g.desc}  ($${(g.rates[pi] + allowRate).toFixed(2)}/hr)`;
     sel.appendChild(opt);
   });
 }
@@ -308,8 +309,8 @@ function updateGrade() {
 
   // All rates derived from combined (base + testing allowance) — matches payslip
   R.base           = base;
-  R.testAllow      = TESTING_ALLOW_RATES[pi];
-  R.seniorTestAllow = 0; // not applicable to night shift
+  R.testAllow       = SENIOR_GRADES.includes(code) ? SENIOR_TESTING_ALLOW_RATES[pi] : TESTING_ALLOW_RATES[pi];
+  R.seniorTestAllow = 0;
   R.eGrade         = EGRADE_RATES[pi];
   const combined = base + R.testAllow;
   R.night   = combined * 0.30;         // NS weekday penalty = 30% of combined
@@ -474,10 +475,14 @@ function runCalc() {
   allDays.forEach(d => {
     const h = d.hours;
     switch (d.type) {
-      case 'weekday':
-        wdHrs     += h; nightHrs += h; eGradeHrs += h; break;
-      case 'sunday':
-        sunHrs    += h; eGradeHrs += h; break;
+      case 'weekday': {
+        const reg = Math.min(h, 9.5), ot = Math.max(0, h - 9.5);
+        wdHrs += reg; nightHrs += reg; eGradeHrs += h; otHrs += ot; break;
+      }
+      case 'sunday': {
+        const reg = Math.min(h, 9.5), ot = Math.max(0, h - 9.5);
+        sunHrs += reg; eGradeHrs += h; otHrs += ot; break;
+      }
       case 'ex_project':
         exHrs     += h; exShifts++;    eGradeHrs += h; break;
       case 'overtime':
