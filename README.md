@@ -28,13 +28,6 @@ A single-file HTML pay calculator for Metro Trains NS Testing staff. Enter your 
 
 - All figures are estimates only — for reference purposes, not payroll advice
 - Tax is annualised from fortnightly taxable income using ATO 2025–26 rates
-- Overtime and PH Worked shifts are excluded from the super base per SGC rules
+- Overtime and PH Worked shifts are excluded from the super base per SGC rules; Annual Leave Loading is included
 - Annual estimate assumes 26 identical fortnights — useful as a ballpark only
 
-## Known Limitations / To Do
-
-**Calculations to verify**
-- [ ] Confirm whether Annual Leave Loading should be included or excluded from the super base
-
-**Usability**
-- [ ] Print / export — no way to save a result for your own records without screenshotting
