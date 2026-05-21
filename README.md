@@ -1,23 +1,88 @@
 # NS Tester Pay Calculator
 
-A single-file HTML pay calculator for Metro Trains NS Testing staff. Enter your fortnightly schedule manually and get an estimated pay breakdown instantly — no server, no install, runs entirely in the browser.
+A single-file HTML pay calculator for Metro Trains Night Shift Testing staff. Enter your fortnightly schedule and get an estimated pay breakdown instantly — no server, no install, runs entirely in the browser.
 
 ## Features
 
-- **Manual schedule entry** — click any day badge to set shift type, click hours to edit
-- **All shift types** — Weekday (130%), Sunday (200%), Project EX (200%), Overtime (200%), PH Worked (250%), Sick/Bonus/WLBP, Non-Roster PH Leave, Annual Leave, Day Off
-- **Annual Leave** — split into base + penalty components matching payslip layout, including Annual Leave Loading (20%)
-- **All pay grades** — VB8 through VZL, with correct base rates and Testing Allowance (A078) across all pay periods from Jul-23 to Jan-27
-- **Automatic overtime split** — Weekday and Sunday shifts over 9.5h automatically split at the normal rate for the first 9.5h and overtime rate (200%) for any excess, excluded from super
-- **Senior Testing Allowance (A077)** — automatically applied for VZO and VZJ grades
-- **E Grade Electrical Allowance (A440)** — applied to all physically worked hours except project shifts
-- **Project shift allowances** — Site Allowance and JumpUp-Infra (in place of A440) applied to Project EX shifts
-- **Pay period aware** — rates update automatically based on today's date, including the 1% rise from Jan-26
+- **Manual schedule entry** — click any day badge to cycle shift type, click hours to edit
+- **All shift types** — Weekday NS, Sunday NS, Project EX, Overtime, PH Worked, Sick/Bonus/WLBP/PH, Non-Roster PH Leave, Annual Leave, Day Off
+- **Automatic overtime split** — Weekday and Sunday shifts over 9.5h automatically split into normal hours + overtime (200%) for any excess
+- **Pay period aware** — rates update automatically based on today's date across all periods from Jul-23 to Jan-27, including the 1% rise from Jan-26
 - **Reset button** — restore the schedule to the default template in one click
 - **Pre-tax deductions** — enter salary sacrifice, car lease, purchased leave etc. to adjust taxable income
 - **Tax estimate** — PAYG calculated using ATO 2025–26 resident individual rates (Stage 3) + 2% Medicare levy
-- **Super estimate** — 12% SG on eligible earnings (excludes OT and PH Worked per SGC rules)
-- **Annual estimate** — projects your fortnightly result × 26 to give a yearly gross, tax, net and super figure
+- **Super estimate** — 12% SG on eligible earnings (excludes Overtime and PH Worked per SGC rules; Annual Leave Loading is included)
+- **Annual estimate** — projects your fortnightly result × 26 for a yearly gross, tax, net and super figure
+- **Pays remaining** — shows pays left in the current financial year and the next pay date
+
+## Pay Grades
+
+Grades available: VB8 (Trainee Tester), VZI (Tester L1), VZN (Tester L2), VZO (Senior Tester L1), VZJ (Senior Tester L2), VZK (Technical Officer L1), VZL (Technical Officer L2).
+
+Each grade has a base hourly rate. The **Testing Allowance (A078)** is added on top to form the **combined rate**, which is the basis for all pay calculations. The grade selector shows the combined rate for the current pay period.
+
+## How Each Shift Type Is Calculated
+
+All rates below use the **combined rate** (base + A078 testing allowance) unless stated otherwise.
+
+### Weekday NS
+- Normal pay: hours (capped at 9.5h) × combined rate
+- NS Weekday Penalty: same hours × 30% of combined rate
+- Hours over 9.5h automatically split to Overtime (see below)
+- E Grade Electrical — Infra (A440) applies to all hours including any overtime excess
+
+### Sunday NS
+- Normal pay: hours (capped at 9.5h) × combined rate
+- Weekend NS Penalty: same hours × 100% of combined rate
+- Hours over 9.5h automatically split to Overtime (see below)
+- E Grade Electrical — Infra (A440) applies to all hours including any overtime excess
+
+### Project EX
+- Normal pay: hours × project rate (combined rate, floored at VZI OT rate)
+- Penalty pay: hours × project rate again (effectively 200% total)
+- Site Allowance: hours × $10.50/hr (editable in the breakdown)
+- JumpUp-Infra: hours × $5.10/hr (editable in the breakdown)
+- E Grade (A440) does **not** apply to project shifts
+
+### Overtime (dedicated shift)
+- Pay: hours × combined rate × 200%
+- E Grade (A440) applies
+- Excluded from super base
+
+### PH Worked
+- Pay: hours × combined rate × 250%
+- E Grade (A440) applies
+- Excluded from super base
+
+### Sick / Bonus / WLBP / PH
+- Pay: hours × combined rate (100%)
+- E Grade (A440) does not apply
+
+### Non-Roster PH Leave
+- Pay: hours × combined rate (100%), defaulting to 7.6h
+- E Grade (A440) does not apply
+
+### Annual Leave — Weekday
+- Base pay: hours × combined rate
+- NS Excess: hours × 10% of combined rate
+- Annual Leave Loading: hours × 20% of combined rate
+- E Grade (A440) does not apply
+
+### Annual Leave — Sunday
+- Base pay: hours × combined rate
+- NS Sunday Excess: hours × 80% of combined rate
+- Annual Leave Loading: hours × 20% of combined rate
+- E Grade (A440) does not apply
+
+## Allowances
+
+| Allowance | Code | Applies to |
+|---|---|---|
+| Testing Allowance | A078 | All shift types (built into combined rate) |
+| E Grade Electrical — Infra | A440 | Weekday, Sunday, Overtime, PH Worked |
+| Annual Leave Loading | — | All Annual Leave hours |
+| Site Allowance | — | Project EX shifts only |
+| JumpUp-Infra | — | Project EX shifts only |
 
 ## Usage
 
@@ -30,6 +95,6 @@ A single-file HTML pay calculator for Metro Trains NS Testing staff. Enter your 
 
 - All figures are estimates only — for reference purposes, not payroll advice
 - Tax is annualised from fortnightly taxable income using ATO 2025–26 rates
-- Overtime and PH Worked shifts are excluded from the super base per SGC rules; Annual Leave Loading is included
+- Overtime and PH Worked shifts are excluded from the super base per SGC rules
 - Annual estimate assumes 26 identical fortnights — useful as a ballpark only
-
+- Site Allowance and JumpUp-Infra rates are editable inline in the breakdown
