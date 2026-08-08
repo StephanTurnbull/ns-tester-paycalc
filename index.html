@@ -96,7 +96,7 @@ body{
   .num-card{padding:14px 12px}
   .num-value{font-size:19px}
   .annual-card{padding:14px 16px}
-  .annual-item-val{font-size:17px}
+  .annual-item-val{font-size:14px}
   .type-select{min-height:40px}
   .day-hrs{min-height:32px;display:inline-flex;align-items:center;justify-content:flex-end}
   .bd-row{align-items:flex-start}
@@ -119,10 +119,10 @@ body{
 .gross-note{font-size:13px;color:rgba(255,255,255,0.4);margin-top:9px}
 
 .numbers-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:15px}
-.num-card{background:var(--c-card);border-radius:var(--r-sm);padding:18px 15px;box-shadow:var(--sh-sm);min-width:0}
+.num-card{background:var(--c-card);border-radius:var(--r-sm);padding:18px 15px;box-shadow:var(--sh-sm);min-width:0;overflow:hidden}
 .num-label{font-size:12px;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
 .num-value{font-size:22px;font-weight:700;color:var(--c-primary);line-height:26px}
-.num-note{font-size:12px;color:var(--c-faint);margin-top:3px}
+.num-note{font-size:12px;color:var(--c-faint);margin-top:3px;overflow-wrap:break-word;word-break:break-word}
 
 .breakdown-card{background:var(--c-card);border-radius:var(--r-sm);padding:22px 25px;box-shadow:var(--sh-sm)}
 .breakdown-card h2{font-size:13px;font-weight:700;color:var(--c-primary);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:15px}
@@ -146,7 +146,7 @@ body{
 .annual-note{font-size:12px;color:var(--c-faint);text-transform:none;letter-spacing:0;font-weight:400;margin-left:6px}
 .annual-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;min-width:0}
 .annual-item-label{font-size:12px;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px}
-.annual-item-val{font-size:20px;font-weight:700;color:var(--c-primary);font-family:'Courier New',monospace;line-height:22px}
+.annual-item-val{font-size:20px;font-weight:700;color:var(--c-primary);font-family:'Courier New',monospace;line-height:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* Pay grade */
 .grade-card{background:var(--c-card);border-radius:var(--r-sm);padding:18px 25px;margin-bottom:18px;box-shadow:var(--sh-sm);display:flex;align-items:center;gap:15px;flex-wrap:wrap}
