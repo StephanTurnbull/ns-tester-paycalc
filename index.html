@@ -79,37 +79,6 @@ body{
 .btn-reset{font-size:12px;font-family:inherit;font-weight:600;color:var(--c-muted);background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--r-sm);padding:5px 12px;cursor:pointer;transition:background var(--tr),color var(--tr)}
 .btn-reset:hover{background:var(--c-border);color:var(--c-text)}
 
-@media(max-width:600px){
-  .weeks-grid{grid-template-columns:minmax(0,1fr)}
-  .numbers-row{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .annual-cols{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .site-header-title strong{font-size:.85rem}
-  .ded-hint{display:none}
-  .wrap{padding:16px 12px}
-  .schedule-section,.breakdown-card{padding:16px 14px}
-  .grade-card{flex-direction:column;align-items:stretch;padding:14px 16px}
-  .grade-card select{min-width:unset}
-  .grade-pill{text-align:center}
-  .ded-section{padding:14px 16px}
-  .gross-card{padding:22px 16px}
-  .gross-value{font-size:40px;line-height:50px}
-  .num-card{padding:14px 12px}
-  .num-value{font-size:19px}
-  .annual-card{padding:14px 16px}
-  .annual-item-val{font-size:14px}
-  .type-select{min-height:40px}
-  .day-hrs{min-height:32px;display:inline-flex;align-items:center;justify-content:flex-end}
-  .bd-row{align-items:flex-start}
-  .bd-meta{display:block;margin-left:0;margin-top:1px;font-size:12px}
-  .rate-inline{font-size:12px}
-  .footnote{font-size:12px}
-}
-@media(max-width:380px){
-  .gross-value{font-size:34px}
-  .num-value{font-size:16px}
-  .annual-item-val{font-size:15px}
-  .site-header-logo svg{height:34px}
-}
 
 /* Result */
 .result-section{display:none}
@@ -164,6 +133,38 @@ body{
 .ded-section input{width:140px;padding:9px 12px;border:1px solid var(--c-border);border-radius:var(--r-sm);font-size:16px;color:var(--c-text);font-family:inherit;transition:border-color var(--tr)}
 .ded-section input:focus{outline:2px solid var(--c-secondary);outline-offset:0;border-color:var(--c-secondary)}
 .ded-hint{font-size:13px;color:var(--c-faint)}
+
+@media(max-width:600px){
+  .weeks-grid{grid-template-columns:minmax(0,1fr)}
+  .numbers-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .annual-cols{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .site-header-title strong{font-size:.85rem}
+  .ded-hint{display:none}
+  .wrap{padding:16px 12px}
+  .schedule-section,.breakdown-card{padding:16px 14px}
+  .grade-card{flex-direction:column;align-items:stretch;padding:14px 16px}
+  .grade-card select{min-width:unset}
+  .grade-pill{text-align:center}
+  .ded-section{padding:14px 16px}
+  .gross-card{padding:22px 16px}
+  .gross-value{font-size:40px;line-height:50px}
+  .num-card{padding:14px 12px}
+  .num-value{font-size:19px}
+  .annual-card{padding:14px 16px}
+  .annual-item-val{font-size:14px}
+  .type-select{min-height:40px}
+  .day-hrs{min-height:32px;display:inline-flex;align-items:center;justify-content:flex-end}
+  .bd-row{align-items:flex-start}
+  .bd-meta{display:block;margin-left:0;margin-top:1px;font-size:12px}
+  .rate-inline{font-size:12px}
+  .footnote{font-size:12px}
+}
+@media(max-width:380px){
+  .gross-value{font-size:34px}
+  .num-value{font-size:16px}
+  .annual-item-val{font-size:15px}
+  .site-header-logo svg{height:34px}
+}
 </style>
 </head>
 <body>
