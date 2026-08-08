@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NS Testing Pay Calculator v1.2</title>
+<title>NS Testing Pay Calculator v1.3</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap');
 
@@ -55,24 +55,23 @@ body{
 .schedule-section h2{font-size:13px;font-weight:700;color:var(--c-primary);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:15px}
 .weeks-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
 .week-block h3{font-size:13px;font-weight:700;color:var(--c-text);margin-bottom:9px;text-transform:uppercase;letter-spacing:0.4px}
-.day-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--c-divider);font-size:15px}
+.day-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-bottom:1px solid var(--c-divider);border-radius:var(--r-sm);font-size:15px}
 .day-row:last-child{border-bottom:none}
 .day-name{width:30px;font-weight:700;color:var(--c-text);font-size:14px}
 .day-hrs{width:36px;text-align:right;color:var(--c-muted);font-family:monospace;font-size:13px;cursor:pointer;border-radius:var(--r-sm);padding:1px 3px;transition:background var(--tr)}
 .day-hrs:hover{background:var(--c-bg)}
 .day-hrs-input{width:46px;text-align:right;font-family:monospace;font-size:13px;border:1px solid var(--c-secondary);border-radius:var(--r-sm);padding:1px 4px;color:var(--c-text);background:var(--c-card);outline:none}
-.type-badge{padding:4px 12px;border-radius:var(--r-full);font-size:12px;font-weight:600;cursor:pointer;border:none;flex-shrink:0;transition:opacity var(--tr);font-family:inherit}
-.type-badge:hover{opacity:0.75}
-.b-weekday    {background:#d3ecf4;color:#005ca6}
-.b-sunday     {background:#fef3c7;color:#7a5800}
-.b-overtime   {background:#fde8d0;color:#8a4000}
-.b-ph_worked  {background:#e2d9f3;color:#5b2c8d}
-.b-pholeave   {background:var(--c-light);color:var(--c-primary)}
-.b-dayoff     {background:var(--c-bg);color:var(--c-muted)}
-.b-ex         {background:#dce7f5;color:#224e8e}
-.b-sick       {background:#d3ecf4;color:#005ca6}
-.b-rostered_ph{background:#d3ecf4;color:#005ca6}
-.b-annual_leave{background:#fde8d0;color:#8a4000}
+.type-select{flex:1;min-width:0;padding:6px 8px;border:1px solid var(--c-border);border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--c-text);background:var(--c-card);cursor:pointer;font-family:inherit;transition:border-color var(--tr)}
+.type-select:focus{outline:2px solid var(--c-secondary);outline-offset:0;border-color:var(--c-secondary)}
+.day-row[data-type="weekday"]    {background:#d3ecf4}
+.day-row[data-type="sunday"]     {background:#fef3c7}
+.day-row[data-type="overtime"]   {background:#fde8d0}
+.day-row[data-type="ph_worked"]  {background:#e2d9f3}
+.day-row[data-type="pholeave"]   {background:var(--c-light)}
+.day-row[data-type="dayoff"]     {background:var(--c-bg)}
+.day-row[data-type="ex_project"] {background:#dce7f5}
+.day-row[data-type="sick"]       {background:#d3ecf4}
+.day-row[data-type="annual_leave"]{background:#fde8d0}
 .edit-hint{font-size:12px;color:var(--c-faint);margin-top:12px;text-align:right}
 .schedule-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
 .schedule-header h2{margin-bottom:0}
@@ -85,6 +84,30 @@ body{
   .annual-cols{grid-template-columns:1fr 1fr}
   .site-header-title strong{font-size:.85rem}
   .ded-hint{display:none}
+  .wrap{padding:16px 12px}
+  .schedule-section,.breakdown-card{padding:16px 14px}
+  .grade-card{flex-direction:column;align-items:stretch;padding:14px 16px}
+  .grade-card select{min-width:unset}
+  .grade-pill{text-align:center}
+  .ded-section{padding:14px 16px}
+  .gross-card{padding:22px 16px}
+  .gross-value{font-size:40px;line-height:50px}
+  .num-card{padding:14px 12px}
+  .num-value{font-size:19px}
+  .annual-card{padding:14px 16px}
+  .annual-item-val{font-size:17px}
+  .type-select{min-height:40px}
+  .day-hrs{min-height:32px;display:inline-flex;align-items:center;justify-content:flex-end}
+  .bd-row{align-items:flex-start}
+  .bd-meta{display:block;margin-left:0;margin-top:1px;font-size:12px}
+  .rate-inline{font-size:12px}
+  .footnote{font-size:12px}
+}
+@media(max-width:380px){
+  .gross-value{font-size:34px}
+  .num-value{font-size:16px}
+  .annual-item-val{font-size:15px}
+  .site-header-logo svg{height:34px}
 }
 
 /* Result */
@@ -160,7 +183,7 @@ body{
     <div class="site-header-divider"></div>
     <div class="site-header-title">
       <strong>Metro Trains Melbourne</strong>
-      NS Testing Pay Calculator <span style="font-size:0.75em;opacity:0.6;font-weight:400;">v1.2</span>
+      NS Testing Pay Calculator <span style="font-size:0.75em;opacity:0.6;font-weight:400;">v1.3</span>
     </div>
   </div>
 </header>
@@ -188,7 +211,7 @@ body{
       <div class="week-block"><h3 id="wk1label">Week 1</h3><div id="wk1days"></div></div>
       <div class="week-block"><h3 id="wk2label">Week 2</h3><div id="wk2days"></div></div>
     </div>
-    <div class="edit-hint">Tap a badge to cycle type → Weekday (130%) · Sunday (200%) · Project (200%) · Overtime (200%) · PH Worked (250%) · Sick/Bonus/WLBP/PH · Non-Roster PH Leave · Annual Leave · Day Off</div>
+    <div class="edit-hint">Use the dropdown to change shift type · tap hours to edit</div>
   </div>
 
   <!-- Pre-tax deductions -->
@@ -212,7 +235,7 @@ body{
       <div class="num-card">
         <div class="num-label">Est. Tax</div>
         <div class="num-value" id="taxVal">—</div>
-        <div class="num-note">PAYG incl. Medicare (approx.)</div>
+        <div class="num-note">PAYG withholding (approx.)</div>
       </div>
       <div class="num-card">
         <div class="num-label">Est. Net</div>
@@ -244,7 +267,7 @@ body{
     <div class="breakdown-card">
       <h2>Breakdown</h2>
       <div id="bdRows"></div>
-      <p class="footnote">* Tax estimated using ATO 2025–26 resident individual rates (Stage 3) + 2% Medicare levy, annualised from taxable income. Employer PAYG withholding uses ATO Schedule 1 coefficients which may produce slightly different results (~$15–30/fortnight variance at higher incomes). All figures indicative only.</p>
+      <p class="footnote">* Tax calculated using ATO PAYG fortnightly withholding formula: $2,124 + 47c per $1 over $7,305 (with tax-free threshold). All figures indicative only.</p>
     </div>
   </div>
 
@@ -356,18 +379,6 @@ const TYPE_LABEL = {
   annual_leave:'Annual Leave',
   dayoff:      'Day Off',
 };
-const TYPE_BG = {
-  weekday:     'b-weekday',
-  sunday:      'b-sunday',
-  ex_project:  'b-ex',
-  overtime:    'b-overtime',
-  ph_worked:   'b-ph_worked',
-  sick:        'b-sick',
-  rostered_ph: 'b-sick',
-  pholeave:    'b-pholeave',
-  annual_leave:'b-annual_leave',
-  dayoff:      'b-dayoff',
-};
 
 // ── State ──────────────────────────────────────────────────
 const state = { weeks: [null, null] };
@@ -398,6 +409,7 @@ function renderSchedule() {
     w.days.forEach((day, di) => {
       const row = document.createElement('div');
       row.className = 'day-row';
+      row.dataset.type = day.type;
 
       const nameEl = document.createElement('span');
       nameEl.className = 'day-name';
@@ -409,30 +421,33 @@ function renderSchedule() {
       hrsEl.textContent = day.hours > 0 ? day.hours + 'h' : '—';
       hrsEl.addEventListener('click', () => editHours(hrsEl, wi, di));
 
-      const badge = document.createElement('button');
-      badge.className = 'type-badge ' + TYPE_BG[day.type];
-      badge.textContent = TYPE_LABEL[day.type];
-      badge.addEventListener('click', () => cycleType(wi, di));
+      const sel = document.createElement('select');
+      sel.className = 'type-select';
+      TYPE_ORDER.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = TYPE_LABEL[t];
+        if (t === day.type) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', () => {
+        const d = state.weeks[wi].days[di];
+        d.type = sel.value;
+        if (d.type === 'pholeave') d.hours = R.phHrs;
+        else if (d.type === 'dayoff') d.hours = 0;
+        else d.hours = 9.5;
+        renderSchedule();
+        runCalc();
+      });
 
       row.appendChild(nameEl);
       row.appendChild(hrsEl);
-      row.appendChild(badge);
+      row.appendChild(sel);
       container.appendChild(row);
     });
   });
 }
 
-function cycleType(wi, di) {
-  const day = state.weeks[wi].days[di];
-  const idx = TYPE_ORDER.indexOf(day.type);
-  day.type = TYPE_ORDER[(idx + 1) % TYPE_ORDER.length];
-  // Update hours to sensible defaults
-  if (day.type === 'pholeave') day.hours = R.phHrs;
-  else if (day.type === 'dayoff') day.hours = 0;
-  else day.hours = 9.5;
-  renderSchedule();
-  runCalc();
-}
 
 function editHours(spanEl, wi, di) {
   const day = state.weeks[wi].days[di];
@@ -529,7 +544,7 @@ function runCalc() {
 
   const preTaxDed = parseFloat(document.getElementById('preTaxInput').value) || 0;
   const taxable = gross - preTaxDed;
-  const tax = estimateTax(taxable);
+  const tax = natWithholding(taxable);
   const net = taxable - tax;
   const superBase = gross - ot2xAmt - phWkdAmt;
   const superAmt  = superBase * 0.12;
@@ -604,7 +619,7 @@ function runCalc() {
   }
 
   sec('Tax (Estimate)');
-  row('PAYG incl. Medicare', 'ATO 2025–26 rates (Stage 3)', tax, true);
+  row('PAYG Withholding', 'ATO fortnightly, with tax-free threshold', tax, true);
 
   rows.push(`<div class="bd-row bd-total"><span class="bd-desc">Estimated Net Pay</span><span class="bd-val">${fmt(net)}</span></div>`);
 
@@ -625,16 +640,8 @@ function getPaysLeftInFY() {
   return { count, next, fyStartYear };
 }
 
-function estimateTax(fortnightlyTaxable) {
-  const a = fortnightlyTaxable * 26;
-  let t = 0;
-  if      (a <= 18200)  t = 0;
-  else if (a <= 45000)  t = (a-18200)*0.19;
-  else if (a <= 135000) t = 5092  + (a-45000)*0.30;
-  else if (a <= 190000) t = 32092 + (a-135000)*0.37;
-  else                  t = 52442 + (a-190000)*0.45;
-  t += a * 0.02; // Medicare
-  return t / 26;
+function natWithholding(fortnightlyTaxable) {
+  return Math.round(2124 + 0.47 * (Math.max(0, fortnightlyTaxable) - 7305));
 }
 
 // ── Formatters ─────────────────────────────────────────────
