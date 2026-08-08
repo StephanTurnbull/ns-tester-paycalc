@@ -79,7 +79,7 @@ All rates below use the **combined rate** (base + A078 testing allowance) unless
 | Allowance | Code | Applies to |
 |---|---|---|
 | Testing Allowance | A078 | All shift types (built into combined rate) |
-| E Grade Electrical — Infra | A440 | Weekday, Sunday, Overtime, PH Worked |
+| E Grade Electrical — Infra | A440 | Weekday, Sunday, Overtime, PH Worked, Sick/Bonus/WLBP/PH, Annual Leave |
 | Annual Leave Loading | — | All Annual Leave hours |
 | Site Allowance | — | Project EX shifts only |
 | JumpUp-Infra | — | Project EX shifts only |

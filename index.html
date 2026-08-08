@@ -506,12 +506,12 @@ function runCalc() {
         phWkdHrs  += h; eGradeHrs += h; break;
       case 'sick':
       case 'rostered_ph':
-        sickHrs   += h; break;
+        sickHrs   += h; eGradeHrs += h; break;
       case 'pholeave':
         phLeaveHrs  += h; break;
       case 'annual_leave':
         if (d.day === 'SUN') alSunHrs += h; else alWdHrs += h;
-        break;
+        eGradeHrs += h; break;
     }
   });
 
