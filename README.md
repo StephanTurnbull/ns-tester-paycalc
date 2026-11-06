@@ -10,9 +10,11 @@ A single-file HTML pay calculator for Metro Trains Night Shift Testing staff. En
 - **Pay period aware** — rates update automatically based on today's date across all periods from Jul-23 to Jan-27, including the 1% rise from Jan-26
 - **Reset button** — restore the schedule to the default template in one click
 - **Pre-tax deductions** — enter salary sacrifice, car lease, purchased leave etc. to adjust taxable income
-- **Tax estimate** — PAYG calculated using ATO 2025–26 resident individual rates (Stage 3) + 2% Medicare levy
+- **Tax estimate** — PAYG withholding worked weekly then doubled (top bracket, 0.47 × weekly pay − 655.79), fitted to Sep/Oct 2026 payslips; matches them to the dollar
 - **Super estimate** — 12% SG on eligible earnings (excludes Overtime and PH Worked per SGC rules; Annual Leave Loading is included)
 - **Annual estimate** — projects your fortnightly result × 26 for a yearly gross, tax, net and super figure
+- **Pre-tax shortcut** — tap the `$` beside the pre-tax box to add/remove 797.48 (WLBP purchase days off 231.92 + FLARE car lease 565.56)
+- **Pay matcher (hidden)** — tap the faint "pay matcher" link at the bottom. Enter a net deposit and it lists the 5 most likely fortnights (standard, project, leave, extra/OT shifts, PH day) with a likelihood % and $ over/under, plus a button to load one into the schedule. Weights are in the `MATCH` block in `index.html`
 - **Pays remaining** — shows pays left in the current financial year and the next pay date
 
 ## Pay Grades

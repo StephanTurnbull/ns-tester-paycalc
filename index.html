@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NS Testing Pay Calculator v1.3</title>
+<title>NS Testing Pay Calculator v1.4</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap');
 
@@ -129,10 +129,30 @@ body{
 .ded-section{background:var(--c-card);border-radius:var(--r-sm);padding:18px 25px;margin-bottom:18px;box-shadow:var(--sh-sm)}
 .ded-label{display:block;font-size:13px;font-weight:700;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:12px}
 .ded-row{display:flex;align-items:center;gap:12px}
-.ded-prefix{font-size:18px;color:var(--c-faint);font-weight:600}
+.ded-prefix{font-size:18px;color:var(--c-faint);font-weight:600;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;padding:6px 2px 6px 4px;margin-right:-8px}
+.ded-prefix.on{color:var(--c-secondary)}
 .ded-section input{width:140px;padding:9px 12px;border:1px solid var(--c-border);border-radius:var(--r-sm);font-size:16px;color:var(--c-text);font-family:inherit;transition:border-color var(--tr)}
 .ded-section input:focus{outline:2px solid var(--c-secondary);outline-offset:0;border-color:var(--c-secondary)}
 .ded-hint{font-size:13px;color:var(--c-faint)}
+
+/* Pay matcher */
+.matcher-link{font-size:11px;color:var(--c-faint);text-align:center;margin:10px 0;opacity:.45;cursor:pointer;user-select:none}
+.matcher-section{background:var(--c-card);border-radius:var(--r-sm);padding:18px 25px;margin-bottom:18px;box-shadow:var(--sh-sm)}
+.matcher-section h2{font-size:15px;margin:0 0 6px;color:var(--c-primary)}
+.matcher-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.matcher-head h2{margin:0}
+.matcher-row select{padding:9px 12px;border:1px solid var(--c-border);border-radius:var(--r-sm);font-size:15px;font-family:inherit;flex:1;min-width:220px;background:var(--c-card);color:var(--c-text)}
+.matcher-note{font-size:13px;color:var(--c-muted);margin:0 0 12px}
+.matcher-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.matcher-row input{width:130px;padding:9px 12px;border:1px solid var(--c-border);border-radius:var(--r-sm);font-size:16px;font-family:inherit}
+.matcher-opts{font-size:12px;color:var(--c-muted)}
+.matcher-opts input{width:70px;padding:5px 8px;font-size:13px}
+.match-card{border:1px solid var(--c-border);border-radius:var(--r-sm);padding:12px 14px;margin-top:10px}
+.match-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.match-pct{font-size:20px;font-weight:700;color:var(--c-primary)}
+.match-diff{font-size:13px;color:var(--c-muted)}
+.match-desc{font-size:14px;margin:4px 0 8px}
+.match-warn{font-size:13px;color:#b45309;margin-top:10px}
 
 @media(max-width:600px){
   .weeks-grid{grid-template-columns:minmax(0,1fr)}
@@ -185,13 +205,14 @@ body{
     <div class="site-header-divider"></div>
     <div class="site-header-title">
       <strong>Metro Trains Melbourne</strong>
-      NS Testing Pay Calculator <span style="font-size:0.75em;opacity:0.6;font-weight:400;">v1.3</span>
+      NS Testing Pay Calculator <span style="font-size:0.75em;opacity:0.6;font-weight:400;">v1.4</span>
     </div>
   </div>
 </header>
 
 <div class="wrap">
 
+<div id="calcMain">
   <!-- Pay grade selector -->
   <div class="grade-card">
     <label for="gradeSelect">Pay Grade</label>
@@ -220,7 +241,7 @@ body{
   <div class="ded-section" id="dedSec" style="display:none">
     <label class="ded-label" for="preTaxInput">Pre-Tax Deductions (optional)</label>
     <div class="ded-row">
-      <span class="ded-prefix">$</span>
+      <span class="ded-prefix" id="dedPreset" onclick="togglePresetDed()">$</span>
       <input type="number" id="preTaxInput" placeholder="0.00" min="0" step="0.01" oninput="runCalc()">
       <span class="ded-hint">salary sacrifice, car lease, purchased leave, etc.</span>
     </div>
@@ -271,6 +292,35 @@ body{
       <div id="bdRows"></div>
       <p class="footnote">* Tax calculated using ATO PAYG fortnightly withholding formula: $2,124 + 47c per $1 over $7,305 (with tax-free threshold). All figures indicative only.</p>
     </div>
+  </div>
+
+</div><!-- /calcMain -->
+
+  <!-- Pay matcher (hidden by default; open with the faint link below) -->
+  <div class="matcher-link" id="matchLink" onclick="toggleMatcher()">pay matcher</div>
+  <div class="matcher-section" id="matchSec" style="display:none">
+    <div class="matcher-head">
+      <h2>Pay matcher</h2>
+      <button class="btn-reset" onclick="toggleMatcher()">← Calculator</button>
+    </div>
+    <div class="matcher-row">
+      <select id="matchGrade" onchange="setMatchGrade()"><option value="">— Select your grade —</option></select>
+    </div>
+    <p class="matcher-note">Enter the net amount you were paid. It lists the most likely fortnights that add up to it, using the grade set above and the pre-tax amount below.</p>
+    <div class="matcher-row">
+      <span class="ded-prefix" style="cursor:default;margin-right:0">$</span>
+      <input type="number" id="matchNet" placeholder="Net deposit" min="0" step="0.01" onkeydown="if(event.key==='Enter')runMatcher()">
+      <button class="btn-reset" onclick="runMatcher()">Find</button>
+    </div>
+    <div class="matcher-row">
+      <span class="ded-prefix" id="matchPreDollar" onclick="togglePresetDed('matchPre','matchPreDollar')" style="margin-right:0">$</span>
+      <input type="number" id="matchPre" placeholder="Pre-tax deductions" min="0" step="0.01" onkeydown="if(event.key==='Enter')runMatcher()">
+    </div>
+    <div class="matcher-row matcher-opts">
+      <label>Project shift hrs <input type="number" id="matchProjHrs" value="9.5" min="0" step="0.1"></label>
+      <label>OT shift hrs <input type="number" id="matchOtHrs" value="9.5" min="0" step="0.1"></label>
+    </div>
+    <div id="matchOut"></div>
   </div>
 
 </div>
@@ -477,10 +527,22 @@ function editHours(spanEl, wi, di) {
 }
 
 // ── Pay calculation ────────────────────────────────────────
-function runCalc() {
-  if (R.base === 0) { document.getElementById('resultSec').style.display = 'none'; return; }
-  const allDays = [...state.weeks[0].days, ...state.weeks[1].days];
+// Hidden shortcut: tap the "$" to add/remove usual fortnightly pre-tax deductions
+// (WLBP Purchase Days Off 231.92 + FLARE Car Lease 565.56)
+const PRESET_DED = 231.92 + 565.56;
+const presetOn = {};
+function togglePresetDed(inputId = 'preTaxInput', dollarId = 'dedPreset') {
+  const inp = document.getElementById(inputId);
+  const cur = parseFloat(inp.value) || 0;
+  presetOn[inputId] = !presetOn[inputId];
+  const next = Math.max(0, Math.round((cur + (presetOn[inputId] ? PRESET_DED : -PRESET_DED)) * 100) / 100);
+  inp.value = next > 0 ? next.toFixed(2) : '';
+  document.getElementById(dollarId).classList.toggle('on', presetOn[inputId]);
+  if (inputId === 'preTaxInput') runCalc();
+}
 
+// Pure pay maths: list of 14 days -> hours buckets, amounts and gross (uses grade rates in R)
+function payTotals(allDays) {
   let wdHrs=0, sunHrs=0, exHrs=0, exShifts=0;
   let otHrs=0, phWkdHrs=0;
   let sickHrs=0, phLeaveHrs=0;
@@ -508,7 +570,7 @@ function runCalc() {
       case 'rostered_ph':
         sickHrs   += h; eGradeHrs += h; break;
       case 'pholeave':
-        phLeaveHrs  += h; break;
+        phLeaveHrs  += h; eGradeHrs += h; break;
       case 'annual_leave':
         if (d.day === 'SUN') alSunHrs += h; else alWdHrs += h;
         eGradeHrs += h; break;
@@ -543,6 +605,14 @@ function runCalc() {
                 phWkdAmt + sickAmt + phLeaveAmt +
                 alWdNormalAmt + alWdExcessAmt + alSunNormalAmt + alSunExcessAmt + alLoadingAmt +
                 eGradeAmt;
+  return { wdHrs, sunHrs, exHrs, exShifts, otHrs, phWkdHrs, sickHrs, phLeaveHrs, alWdHrs, alSunHrs, nightHrs, eGradeHrs, combined, wdNormalAmt, wdNightAmt, sunNormalAmt, sunWePenAmt, exRate, exNormalAmt, exPenAmt, exAllow, jumpUpAmt, ot2xAmt, phWkdAmt, sickAmt, phLeaveAmt, alWdNormalAmt, alWdExcessAmt, alSunNormalAmt, alSunExcessAmt, alLoadingAmt, eGradeAmt, gross };
+}
+
+function runCalc() {
+  if (R.base === 0) { document.getElementById('resultSec').style.display = 'none'; return; }
+  const allDays = [...state.weeks[0].days, ...state.weeks[1].days];
+
+  const { wdHrs, sunHrs, exHrs, exShifts, otHrs, phWkdHrs, sickHrs, phLeaveHrs, alWdHrs, alSunHrs, nightHrs, eGradeHrs, combined, wdNormalAmt, wdNightAmt, sunNormalAmt, sunWePenAmt, exRate, exNormalAmt, exPenAmt, exAllow, jumpUpAmt, ot2xAmt, phWkdAmt, sickAmt, phLeaveAmt, alWdNormalAmt, alWdExcessAmt, alSunNormalAmt, alSunExcessAmt, alLoadingAmt, eGradeAmt, gross } = payTotals(allDays);
 
   const preTaxDed = parseFloat(document.getElementById('preTaxInput').value) || 0;
   const taxable = gross - preTaxDed;
@@ -642,8 +712,11 @@ function getPaysLeftInFY() {
   return { count, next, fyStartYear };
 }
 
+// Payroll withholds weekly then doubles it: x = whole dollars of weekly pay + 0.99, tax = round(0.47x - b).
+// b fitted to the Sep/Oct 2026 payslips (matches every slip to the dollar; ATO scale 2, top bracket).
 function natWithholding(fortnightlyTaxable) {
-  return Math.round(2124 + 0.47 * (Math.max(0, fortnightlyTaxable) - 7305));
+  const weekly = Math.max(0, fortnightlyTaxable) / 2;
+  return 2 * Math.round(0.47 * (Math.floor(weekly) + 0.99) - 655.79);
 }
 
 // ── Formatters ─────────────────────────────────────────────
@@ -651,9 +724,193 @@ const fmt = n => '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',
 const cur = n => '$' + n.toFixed(2);
 const h   = n => n % 1 === 0 ? n+'h' : n.toFixed(1)+'h';
 
+// ── Pay matcher ────────────────────────────────────────────
+// Works backwards from a net deposit: tries every plausible fortnight, keeps the closest.
+// Priors are rough "how normal is this" numbers, set from the Sep/Oct 2026 payslips. Tweak them here.
+const MATCH = {
+  slot:    { std: 0.83, project: 0.05, al: 0.02, sick: 0.06, off: 0.04 },  // each rostered shift (Sun + Mon-Wed, x2 weeks)
+  extraWd: [0.80, 0.17, 0.03],            // extra normal weekday shifts on a day off (0..2)
+  ot:      [0.35, 0.35, 0.20, 0.10],      // OT shifts (0..3)
+  otExtra: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],   // extra OT hours tacked on (e.g. 2.5h)
+  otExtraP:[0.70, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.03, 0.03],
+  ph:      [0.95, 0.05],                  // a PH leave day (7.6h)
+  sigma:   2,                             // $ off that still counts as a close match
+};
+const MATCH_OPTS = ['std','project','al','sick','off'];
+const MATCH_NAME = { std:'standard', project:'project', al:'annual leave', sick:'sick/WLBP/bonus', off:'day off' };
+
+function matchCounts(n, k) {          // every way to split n slots across k options
+  if (k === 1) return [[n]];
+  const out = [];
+  for (let i = 0; i <= n; i++) matchCounts(n - i, k - 1).forEach(r => out.push([i, ...r]));
+  return out;
+}
+const fact = n => n <= 1 ? 1 : n * fact(n - 1);
+function matchMult(c) { return fact(c.reduce((a,b)=>a+b,0)) / c.reduce((a,x)=>a*fact(x),1); }
+function matchPrior(c) { return matchMult(c) * c.reduce((a,x,i)=>a*Math.pow(MATCH.slot[MATCH_OPTS[i]],x),1); }
+
+const matchDay = (day, kind, std, projHrs) => {
+  switch (kind) {
+    case 'std':     return { day, type: std, hours: 9.5 };
+    case 'project': return { day, type: 'ex_project', hours: projHrs };
+    case 'al':      return { day, type: 'annual_leave', hours: 9.5 };
+    case 'sick':    return { day, type: 'sick', hours: 9.5 };
+    default:        return { day, type: 'dayoff', hours: 0 };
+  }
+};
+
+// Build the two weeks of days for a combo (used by "Load into schedule")
+function matchDays(c, projHrs, otHrs) {
+  const NAMES = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const expand = cnt => cnt.flatMap((n,i) => Array(n).fill(MATCH_OPTS[i]));
+  const sun = expand(c.cs), wd = expand(c.cw);
+  const extras = [];                                   // goes on the days off (THU, FRI, SAT, each week)
+  for (let i = 0; i < c.extraWd; i++) extras.push({ type: 'weekday', hours: 9.5 });
+  for (let i = 0; i < c.otN; i++)     extras.push({ type: 'overtime', hours: otHrs });
+  if (c.ph) extras.push({ type: 'pholeave', hours: R.phHrs });
+  if (c.otExtra > 0) {
+    const ot = extras.find(e => e.type === 'overtime');
+    if (ot) ot.hours += c.otExtra; else extras.push({ type: 'overtime', hours: c.otExtra });
+  }
+  const offSlots = [[0,'THU'],[1,'THU'],[0,'FRI'],[1,'FRI'],[0,'SAT'],[1,'SAT']];
+  return [0,1].map(w => NAMES.map(day => {
+    if (day === 'SUN') return matchDay(day, sun[w], 'sunday', projHrs);
+    const i = ['MON','TUE','WED'].indexOf(day);
+    if (i >= 0) return matchDay(day, wd[w*3 + i], 'weekday', projHrs);
+    const k = offSlots.findIndex(o => o[0] === w && o[1] === day);
+    return extras[k] ? { day, ...extras[k] } : { day, type: 'dayoff', hours: 0 };
+  }));
+}
+
+function matchDescribe(c) {
+  const parts = [];
+  MATCH_OPTS.forEach((o,i) => {
+    const sn = c.cs[i], wn = c.cw[i];
+    if (o === 'std') { if (sn + wn < 8) parts.push(`${sn+wn} of 8 standard shifts`); }
+    else {
+      if (sn) parts.push(`${sn} Sunday ${MATCH_NAME[o]}`);
+      if (wn) parts.push(`${wn} weekday ${MATCH_NAME[o]}`);
+    }
+  });
+  if (c.extraWd) parts.push(`${c.extraWd} extra weekday shift${c.extraWd>1?'s':''}`);
+  if (c.otN)     parts.push(`${c.otN} OT shift${c.otN>1?'s':''}`);
+  if (c.otExtra) parts.push(`+${c.otExtra}h extra OT`);
+  if (c.ph)      parts.push('1 PH leave day (7.6h)');
+  return parts.length ? parts.join(', ') : 'Normal fortnight (2 Sundays + 6 weekdays)';
+}
+
+let matchResults = [];
+function runMatcher() {
+  const out = document.getElementById('matchOut');
+  const target = parseFloat(document.getElementById('matchNet').value);
+  if (R.base === 0) { out.innerHTML = '<p class="match-warn">Pick your pay grade at the top first.</p>'; return; }
+  if (!(target > 0)) { out.innerHTML = '<p class="match-warn">Enter the net amount first.</p>'; return; }
+  const pre = parseFloat(document.getElementById('matchPre').value) || 0;
+  const projHrs = parseFloat(document.getElementById('matchProjHrs').value) || 9.5;
+  const otHrs   = parseFloat(document.getElementById('matchOtHrs').value) || 9.5;
+
+  // Pay is additive per day, so price each kind of day once and just add them up
+  const g = d => payTotals([d]).gross;
+  const gKind = (std, day) => MATCH_OPTS.map(k => g(matchDay(day, k, std, projHrs)));
+  const gSun = gKind('sunday', 'SUN'), gWd = gKind('weekday', 'MON');
+  const sumG = (c, gk) => c.reduce((a,n,i) => a + n * gk[i], 0);
+  const suns = matchCounts(2, 5).map(c => ({ c, p: matchPrior(c), g: sumG(c, gSun) }));
+  const wds  = matchCounts(6, 5).map(c => ({ c, p: matchPrior(c), g: sumG(c, gWd) }));
+  const gExtraWd = g({ day:'THU', type:'weekday', hours:9.5 });
+  const gOt      = g({ day:'THU', type:'overtime', hours:otHrs });
+  const gPh      = g({ day:'THU', type:'pholeave', hours:R.phHrs });
+  const gOtX     = MATCH.otExtra.map(h => h > 0 ? g({ day:'THU', type:'overtime', hours:h }) : 0);
+
+  const keep = [];
+  let total = 0, closest = null;
+  suns.forEach(S => wds.forEach(W => {
+    const base = S.p * W.p, gBase = S.g + W.g;
+    for (let xw = 0; xw < MATCH.extraWd.length; xw++)
+    for (let o = 0; o < MATCH.ot.length; o++)
+    for (let x = 0; x < MATCH.otExtra.length; x++)
+    for (let ph = 0; ph < 2; ph++) {
+      const slots = xw + o + ph + (x > 0 && o === 0 ? 1 : 0);
+      if (slots > 6) continue;
+      const gross = gBase + xw * gExtraWd + o * gOt + ph * gPh + gOtX[x];
+      const taxable = gross - pre;
+      const net = taxable - natWithholding(taxable);
+      const diff = net - target;
+      const score = base * MATCH.extraWd[xw] * MATCH.ot[o] * MATCH.otExtraP[x] * MATCH.ph[ph] * Math.exp(-0.5 * Math.pow(diff / MATCH.sigma, 2));
+      total += score;
+      if (!closest || Math.abs(diff) < Math.abs(closest.diff)) closest = { diff, net };
+      if (score > 1e-9) keep.push({ cs: S.c, cw: W.c, extraWd: xw, otN: o, otExtra: MATCH.otExtra[x], ph, net, diff, score });
+    }
+  }));
+
+  // Different rosters can pay the exact same amount (annual leave pays like a normal shift, Sunday
+  // off + extra OT = a Sunday). Merge those so the top 5 are genuinely different amounts.
+  const groups = new Map();
+  keep.sort((a,b) => b.score - a.score).forEach(r => {
+    const k = r.net.toFixed(2), gr = groups.get(k);
+    if (gr) { gr.score += r.score; gr.same++; } else groups.set(k, Object.assign({ same: 0 }, r));
+  });
+  matchResults = [...groups.values()].sort((a,b) => b.score - a.score).slice(0, 5);
+
+  let html = '';
+  if (!closest || Math.abs(closest.diff) > 12) {
+    html += `<p class="match-warn">Nothing lands close. The nearest is ${fmt(closest.diff)} ${closest.diff>0?'over':'under'}, so something isn't modelled (an allowance like the OT meal, a different OT length, a different pre-tax amount?).</p>`;
+  }
+  matchResults.forEach((r, i) => {
+    const pct = total > 0 ? (r.score / total * 100) : 0;
+    const d = r.diff;
+    html += `<div class="match-card">
+      <div class="match-top"><span class="match-pct">${pct < 1 ? '<1' : pct.toFixed(0)}%</span>
+        <span class="match-diff">calc net ${fmt(r.net)} · ${Math.abs(d) < 0.5 ? 'spot on' : fmt(d) + (d > 0 ? ' over' : ' under')}</span></div>
+      <div class="match-desc">${matchDescribe(r)}</div>
+      ${r.same ? `<div class="match-diff">${r.same} other roster${r.same>1?'s':''} pay the same amount</div>` : ''}
+      <button class="btn-reset" onclick="loadMatch(${i})">Load into schedule</button>
+    </div>`;
+  });
+  out.innerHTML = html;
+}
+
+function loadMatch(i) {
+  const r = matchResults[i];
+  if (!r) return;
+  const wk = matchDays(r, parseFloat(document.getElementById('matchProjHrs').value) || 9.5, parseFloat(document.getElementById('matchOtHrs').value) || 9.5);
+  state.weeks[0] = { weekEnd: null, days: wk[0] };
+  state.weeks[1] = { weekEnd: null, days: wk[1] };
+  setMatcherOpen(false);
+  renderSchedule();
+  runCalc();
+  document.getElementById('schedSec').scrollIntoView({ behavior: 'smooth' });
+}
+
+function setMatcherOpen(open) {
+  document.getElementById('matchSec').style.display = open ? 'block' : 'none';
+  document.getElementById('calcMain').style.display = open ? 'none' : 'block';
+  document.getElementById('matchLink').style.display = open ? 'none' : 'block';
+  if (open) document.getElementById('matchGrade').value = document.getElementById('gradeSelect').value;
+  try { localStorage.setItem('matcherOpen', open ? '1' : ''); } catch (e) {}
+}
+function toggleMatcher() {
+  setMatcherOpen(document.getElementById('matchSec').style.display === 'none');
+  window.scrollTo(0, 0);
+}
+// Grade picked inside the matcher drives the same grade as the main calculator
+function setMatchGrade() {
+  document.getElementById('gradeSelect').value = document.getElementById('matchGrade').value;
+  updateGrade();
+}
+function populateMatchGrade() {
+  const src = document.getElementById('gradeSelect'), dst = document.getElementById('matchGrade');
+  [...src.options].slice(1).forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.value; opt.textContent = o.textContent;
+    dst.appendChild(opt);
+  });
+}
+
 // ── Init ───────────────────────────────────────────────────
 populateGradeSelect();
+populateMatchGrade();
 initSchedule();
+try { if (localStorage.getItem('matcherOpen')) setMatcherOpen(true); } catch (e) {}
 </script>
 </body>
 </html>
